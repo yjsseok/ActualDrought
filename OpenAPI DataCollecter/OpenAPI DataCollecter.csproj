@@ -1,0 +1,330 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3E34141C-5154-4E9A-B728-AA50EA318C9A}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>OpenAPI_DataCollecter</RootNamespace>
+    <AssemblyName>OpenAPI DataCollecter</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.Data.Desktop.v22.2, Version=22.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Data.v22.2, Version=22.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Printing.v22.2.Core, Version=22.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Utils.v22.2, Version=22.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraEditors.v22.2, Version=22.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="Infragistics4.Shared.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.Misc.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.UltraWinEditors.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.UltraWinGrid.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="Infragistics4.Win.UltraWinStatusBar.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.UltraWinTabbedMdi.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="Infragistics4.Win.UltraWinTabControl.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.UltraWinToolbars.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="Infragistics4.Win.v22.1, Version=22.1.20221.33, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.1\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.HashCode.6.0.0\lib\net462\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=9.0.0.1, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.9.0.1\lib\net462\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=9.0.0.1, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.9.0.1\lib\net462\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=8.0.3.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Npgsql.8.0.3\lib\netstandard2.0\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=9.0.0.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.9.0.1\lib\net462\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.9.0.1\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Pipelines, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Pipelines.9.0.1\lib\net462\System.IO.Pipelines.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.6.0\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.0\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.Text.Encodings.Web, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.9.0.1\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.9.0.1\lib\net462\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Channels, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Channels.9.0.1\lib\net462\System.Threading.Channels.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.0\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="frmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain.Designer.cs">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmPDP_AgriDam.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPDP_AgriDam.Designer.cs">
+      <DependentUpon>frmPDP_AgriDam.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmModel_OBSRVN.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmModel_OBSRVN.Designer.cs">
+      <DependentUpon>frmModel_OBSRVN.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGFLS.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGFLS.Designer.cs">
+      <DependentUpon>frmModel_ModelSGFLS.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGFLSanrm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGFLSanrm.Designer.cs">
+      <DependentUpon>frmModel_ModelSGFLSanrm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGRSRV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGRSRV.Designer.cs">
+      <DependentUpon>frmModel_ModelSGRSRV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGAGRPADDY.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGAGRPADDY.designer.cs">
+      <DependentUpon>frmModel_ModelSGAGRPADDY.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGHYD.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGHYD.Designer.cs">
+      <DependentUpon>frmModel_ModelSGHYD.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGMT.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelSGMT.Designer.cs">
+      <DependentUpon>frmModel_ModelSGMT.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelKK.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmModel_ModelKK.Designer.cs">
+      <DependentUpon>frmModel_ModelKK.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmService_Test.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmService_Test.Designer.cs">
+      <DependentUpon>frmService_Test.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmWait.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmWait.Designer.cs">
+      <DependentUpon>frmWait.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmWAMIS_mnhrdata.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmWAMIS_mnhrdata.Designer.cs">
+      <DependentUpon>frmWAMIS_mnhrdata.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmWAMIS_mndammain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmWAMIS_mndammain.Designer.cs">
+      <DependentUpon>frmWAMIS_mndammain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\frmWAMIS_mndtdata.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmWAMIS_mndtdata.Designer.cs">
+      <DependentUpon>frmWAMIS_mndtdata.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="frmMain.resx">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmPDP_AgriDam.resx">
+      <DependentUpon>frmPDP_AgriDam.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmModel_OBSRVN.resx">
+      <DependentUpon>frmModel_OBSRVN.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmModel_ModelSGFLS.resx">
+      <DependentUpon>frmModel_ModelSGFLS.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmModel_ModelSGFLSanrm.resx">
+      <DependentUpon>frmModel_ModelSGFLSanrm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmModel_ModelSGRSRV.resx">
+      <DependentUpon>frmModel_ModelSGRSRV.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmModel_ModelSGAGRPADDY.resx">
+      <DependentUpon>frmModel_ModelSGAGRPADDY.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmModel_ModelKK.resx">
+      <DependentUpon>frmModel_ModelKK.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmService_Test.resx">
+      <DependentUpon>frmService_Test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmWait.resx">
+      <DependentUpon>frmWait.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmModel_ModelSGHYD.resx">
+      <DependentUpon>frmModel_ModelSGHYD.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmModel_ModelSGMT.resx">
+      <DependentUpon>frmModel_ModelSGMT.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmWAMIS_mnhrdata.resx">
+      <DependentUpon>frmWAMIS_mnhrdata.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmWAMIS_mndammain.resx">
+      <DependentUpon>frmWAMIS_mndammain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\licenses.licx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Views\frmWAMIS_mndtdata.resx">
+      <DependentUpon>frmWAMIS_mndtdata.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1hr.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1day.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1mon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\GenericObjects32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenAPI.Controls\OpenAPI.Controls.csproj">
+      <Project>{ba1ae05c-d2a7-4fa4-870b-7cbdea8e5ba6}</Project>
+      <Name>OpenAPI.Controls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OpenAPI.DataServices\OpenAPI.DataServices.csproj">
+      <Project>{DED1125C-8EF7-4048-9BC9-83A977750440}</Project>
+      <Name>OpenAPI.DataServices</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OpenAPI.Model\OpenAPI.Model.csproj">
+      <Project>{212054C1-1053-43EF-87F8-4C7D68457011}</Project>
+      <Name>OpenAPI.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UFRI.FramWork\UFRI.FrameWork.csproj">
+      <Project>{3105CC22-F652-4581-AC12-AC01507E7D81}</Project>
+      <Name>UFRI.FrameWork</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ZoomGeneric_B_16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Excel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PDF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Print.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
