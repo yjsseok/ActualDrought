@@ -24,6 +24,7 @@ namespace Service.DataCollect.AG
     public partial class frmMain : Form
     {
         #region [Delegate]
+
         delegate void deleOpenAPI_AG_tb_reserviorlevel_Caller();
         #endregion
 
@@ -133,12 +134,13 @@ namespace Service.DataCollect.AG
             {
                 if (_global.RealTimeUse == true)
                 {
-                    thOpenAPI_AG_tb_reserviorlevel = new Thread(OpenAPI_AG_tb_reserviorlevel)
+                    thOpenAPI_AG_tb_reserviorlevel = new Thread(OpenAPI_AG_tb_reserviorlevel_AutoCaller)
                     {
                         IsBackground = true
                     };
                     thOpenAPI_AG_tb_reserviorlevel.Start();
                 }
+
                 if (_global.PeriodUse)
                 {
                     thOpenAPI_AG_tb_reserviorlevel_Period = new Thread(OpenAPI_AG_tb_reserviorlevel_PeriodCaller)
@@ -153,7 +155,6 @@ namespace Service.DataCollect.AG
                     IsBackground = true
                 };
                 thOpenAPI_AG_tb_reserviorlevel_Result.Start();
-
                 isServiceRunning = true;
                 return true;
             }
@@ -163,10 +164,99 @@ namespace Service.DataCollect.AG
                 return false;
             }
         }
-
-        private void OpenAPI_AG_tb_reserviorlevel()
+        private void OpenAPI_AG_tb_reserviorlevel_AutoCaller()
         {
+            // 설정된 시간 간격으로 호출 (초 단위)
+            int nTimeGap = 1000 * Config.AG_tb_reserviorlevel_Auto_Caller_Second;
+            deleOpenAPI_AG_tb_reserviorlevel_Caller deleMethod = new deleOpenAPI_AG_tb_reserviorlevel_Caller(this.OpenAPI_AG_tb_reserviorlevel_Service);
 
+            while (!_shouldStop)
+            {
+                IAsyncResult ar = deleMethod.BeginInvoke(null, null);
+                Thread.Sleep(nTimeGap);
+            }
+        }
+
+        private void OpenAPI_AG_tb_reserviorlevel_Service()
+        {
+            try
+            {
+                WriteStatus("농업용 저수지 실시간 데이터 수집 모듈 시작");
+
+                // DB에서 최종 데이터 일자 조회
+                DateTime lastDate = NpgSQLService.GetLastDateFromOpenAPI_AG_tb_reserviorlevel();
+                DateTime today = DateTime.Today;
+
+                // 최종 데이터가 오늘 날짜보다 이후인 경우 작업 취소
+                if (lastDate.Date >= today.Date)
+                {
+                    string message = string.Format("최종 데이터({0})가 오늘자입니다. 데이터 수집을 건너뜁니다.",
+                        lastDate.ToString("yyyy-MM-dd"));
+                    WriteStatus(message);
+                    return; // 메서드 종료
+                }
+
+                // 농업용 저수지 정보 가져오기
+                List<AgriDamSpec> listAgriDam = NpgSQLService.Get_AgriDamSpec();
+
+                if (listAgriDam != null && listAgriDam.Count > 0)
+                {
+                    // 최종일자 다음날부터 오늘까지 한 번에 요청
+                    DateTime startDate = lastDate.AddDays(1);
+                    WriteStatus($"데이터 수집 시작: {startDate.ToString("yyyy-MM-dd")} ~ {today.ToString("yyyy-MM-dd")}");
+
+                    foreach (AgriDamSpec dam in listAgriDam)
+                    {
+                        if (_shouldStop) break;
+
+                        try
+                        {
+                            WriteStatus($"[{dam.facName}] 저수지 데이터 조회 중... ({startDate.ToString("yyyy-MM-dd")} ~ {today.ToString("yyyy-MM-dd")})");
+
+                            // API 호출하여 데이터 가져오기 - 기간 전체를 한 번에 요청
+                            List<ReservoirLevelData> data = GetReservoirDataAsync(dam.facCode, startDate, today).Result;
+
+                            if (data != null && data.Count > 0)
+                            {
+                                // 결과 큐에 추가
+                                lock (locker)
+                                {
+                                    OpenAPI_AG_tb_reserviorlevel_ResultQueue.Enqueue(data);
+                                }
+
+                                // 결과 처리 이벤트 발생
+                                eventWaitHandle.Set();
+                                WriteStatus($"[{dam.facName}] 저수지 데이터 {data.Count}건 처리 완료");
+                            }
+                            else
+                            {
+                                WriteStatus($"[{dam.facName}] 저수지 데이터가 없습니다.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            WriteStatus($"[{dam.facName}] 저수지 데이터 처리 중 오류 발생: {ex.Message}");
+                            GMLogHelper.WriteLog($"StackTrace: {ex.StackTrace}");
+                            GMLogHelper.WriteLog($"Message: {ex.Message}");
+                        }
+
+                        // API 호출 간 딜레이 추가 (과도한 요청 방지)
+                        Thread.Sleep(100);
+                    }
+                }
+                else
+                {
+                    WriteStatus("저수지 정보를 가져오는데 실패했습니다.");
+                }
+
+                WriteStatus("농업용 저수지 실시간 데이터 수집 모듈 종료");
+            }
+            catch (Exception ex)
+            {
+                WriteStatus($"농업용 저수지 실시간 데이터 수집 모듈 오류: {ex.Message}");
+                GMLogHelper.WriteLog($"StackTrace: {ex.StackTrace}");
+                GMLogHelper.WriteLog($"Message: {ex.Message}");
+            }
         }
         private async void OpenAPI_AG_tb_reserviorlevel_PeriodCaller()
         {
@@ -331,145 +421,7 @@ namespace Service.DataCollect.AG
                 GMLogHelper.WriteLog($"Message: {ex.Message}");
             }
         }
-        //private async void OpenAPI_AG_tb_reserviorlevel_PeriodCaller()
-        //{
-        //    try
-        //    {
-        //        this.WriteStatus("농업용 저수지 기간 조회 모듈 시작");
-
-        //        // 선택된 기간 가져오기
-        //        DateTime startDate = _global.startDate;
-        //        DateTime endDate = _global.endDate;
-        //        DateTime today = DateTime.Today;
-
-        //        // 종료일이 오늘 날짜를 초과하는지 확인
-        //        if (endDate > today)
-        //        {
-        //            WriteStatus("종료일은 오늘 날짜를 초과할 수 없습니다.");
-        //            endDate = today;
-        //        }
-
-        //        // 기간이 365일을 초과하는지 확인
-        //        TimeSpan dateDiff = endDate - startDate;
-        //        if (dateDiff.TotalDays > 365)
-        //        {
-        //            WriteStatus("조회 기간은 최대 365일까지 가능합니다. 1년 단위로 나누어 조회합니다.");
-
-        //            // 시작일부터 1년씩 증가하면서 조회
-        //            DateTime currentStartDate = startDate;
-
-        //            while (currentStartDate < endDate)
-        //            {
-        //                // 현재 시작일로부터 1년 후 날짜 계산
-        //                DateTime currentEndDate = currentStartDate.AddDays(365);
-
-        //                // 계산된 종료일이 실제 종료일을 초과하면 실제 종료일로 조정
-        //                if (currentEndDate > endDate)
-        //                {
-        //                    currentEndDate = endDate;
-        //                }
-
-        //                // 계산된 종료일이 오늘 날짜를 초과하면 오늘 날짜로 조정
-        //                if (currentEndDate > today)
-        //                {
-        //                    currentEndDate = today;
-        //                }
-
-        //                WriteStatus($"기간 조회: {currentStartDate.ToString("yyyy-MM-dd")} ~ {currentEndDate.ToString("yyyy-MM-dd")}");
-
-        //                // 여기서 현재 기간에 대한 데이터 조회 로직 실행
-        //                // 예: GetDataForPeriod(currentStartDate, currentEndDate);
-
-        //                // 다음 시작일 설정 (현재 종료일 다음날)
-        //                currentStartDate = currentEndDate.AddDays(1);
-
-        //                // 만약 다음 시작일이 종료일을 초과하면 반복 종료
-        //                if (currentStartDate > endDate)
-        //                {
-        //                    break;
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // 365일 이내인 경우 한 번에 조회
-        //            WriteStatus($"기간 조회: {startDate.ToString("yyyy-MM-dd")} ~ {endDate.ToString("yyyy-MM-dd")}");
-        //            // 여기서 전체 기간에 대한 데이터 조회 로직 실행
-        //            // 예: GetDataForPeriod(startDate, endDate);
-        //        }
-
-
-
-        //        // 농업용 저수지 정보 가져오기
-        //        List<AgriDamSpec> listAgriDam = NpgSQLService.Get_AgriDamSpec();
-        //        if (listAgriDam == null || listAgriDam.Count == 0)
-        //        {
-        //            WriteStatus("저수지 정보를 가져오는데 실패했습니다.");
-        //            return;
-        //        }
-
-        //        WriteStatus($"총 {listAgriDam.Count}개의 저수지 정보를 가져왔습니다.");
-
-        //        // 저수지별로 데이터 조회 및 저장
-        //        int successCount = 0;
-        //        int failCount = 0;
-        //        int totalDataCount = 0;
-
-        //        foreach (AgriDamSpec dam in listAgriDam)
-        //        {
-        //            if (_shouldStop) break;
-
-        //            try
-        //            {
-        //                WriteStatus($"[{dam.facName}] 저수지 데이터 조회 중...");
-
-        //                // API 호출하여 데이터 가져오기
-        //                List<ReservoirLevelData> data = await GetReservoirDataAsync(dam.facCode, startDate, endDate);
-
-        //                if (data != null && data.Count > 0)
-        //                {
-        //                    // 결과 큐에 추가
-        //                    lock (locker)
-        //                    {
-        //                        OpenAPI_AG_tb_reserviorlevel_ResultQueue.Enqueue(data);
-        //                    }
-
-        //                    // 결과 처리 이벤트 발생
-        //                    eventWaitHandle.Set();
-
-        //                    successCount++;
-        //                    totalDataCount += data.Count;
-        //                    WriteStatus($"[{dam.facName}] 저수지 데이터 {data.Count}건 처리 완료");
-        //                }
-        //                else
-        //                {
-        //                    WriteStatus($"[{dam.facName}] 저수지 데이터가 없습니다.");
-        //                    failCount++;
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                failCount++;
-        //                WriteStatus($"[{dam.facName}] 저수지 데이터 처리 중 오류 발생: {ex.Message}");
-        //                GMLogHelper.WriteLog($"StackTrace: {ex.StackTrace}");
-        //                GMLogHelper.WriteLog($"Message: {ex.Message}");
-        //            }
-
-        //            // API 호출 간 딜레이 추가 (과도한 요청 방지)
-        //            await Task.Delay(100);
-        //        }
-
-        //        WriteStatus($"작업 완료: 성공 {successCount}개, 실패 {failCount}개, 총 {totalDataCount}건의 데이터 처리됨");
-        //        this.WriteStatus("농업용 저수지 기간 조회 모듈 종료");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        WriteStatus($"농업용 저수지 기간 조회 모듈 오류: {ex.Message}");
-        //        GMLogHelper.WriteLog($"StackTrace: {ex.StackTrace}");
-        //        GMLogHelper.WriteLog($"Message: {ex.Message}");
-        //    }
-        //}
-
+       
         private async Task<List<ReservoirLevelData>> GetReservoirDataAsync(string damCode, DateTime startDate, DateTime endDate)
         {
             List<ReservoirLevelData> result = new List<ReservoirLevelData>();
@@ -618,8 +570,12 @@ namespace Service.DataCollect.AG
                 _shouldStop = true;
                 eventWaitHandle.Set();
 
+                if (thOpenAPI_AG_tb_reserviorlevel != null && thOpenAPI_AG_tb_reserviorlevel.IsAlive)
+                    thOpenAPI_AG_tb_reserviorlevel.Join(100);
+
                 if (thOpenAPI_AG_tb_reserviorlevel_Period != null && thOpenAPI_AG_tb_reserviorlevel_Period.IsAlive)
                     thOpenAPI_AG_tb_reserviorlevel_Period.Join(100);
+
                 if (thOpenAPI_AG_tb_reserviorlevel_Result != null && thOpenAPI_AG_tb_reserviorlevel_Result.IsAlive)
                     thOpenAPI_AG_tb_reserviorlevel_Result.Join(100);
 

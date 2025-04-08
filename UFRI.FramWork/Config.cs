@@ -129,6 +129,13 @@ namespace UFRI.FrameWork
             get { return GMConvert.ToInt32(ConfigurationManager.AppSettings["WAMIS_Flow_Auto_Caller_Second"]); }
         }
 
+        public static Int32 AG_tb_reserviorlevel_Auto_Caller_Second
+        {
+            get { return GMConvert.ToInt32(ConfigurationManager.AppSettings["AG_tb_reserviorlevel_Auto_Caller_Second"]); }
+        }
+
+
+
         public static string RealTimeUse
         {
             get { return GMConvert.ToString(ConfigurationManager.AppSettings["RealTimeUse"]); }

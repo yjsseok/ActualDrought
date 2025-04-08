@@ -643,7 +643,7 @@ namespace OpenAPI.DataServices
                     NpgsqlCommand cmd = conn.CreateCommand();
 
                     DataTable dt = new DataTable();
-                    string query = string.Format("SELECT * FROM api.tb_reservior");
+                    string query = string.Format("SELECT * FROM drought.tb_reservior");
 
                     using (NpgsqlDataAdapter da = new NpgsqlDataAdapter(cmd))
                     {
@@ -749,7 +749,42 @@ namespace OpenAPI.DataServices
                 return false;
             }
         }
+        public static DateTime GetLastDateFromOpenAPI_AG_tb_reserviorlevel()
+        {
+            try
+            {
+                string sql = "SELECT MAX(check_date) FROM drought.tb_reserviorlevel";
+                using (NpgsqlConnection conn = new NpgsqlConnection(GetConnectionString()))
+                {
+                    conn.Open();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        object result = cmd.ExecuteScalar();
+                        if (result != null && result != DBNull.Value)
+                        {
+                            // 날짜 형식에 맞게 파싱 (예: "20250408" -> DateTime)
+                            string dateStr = result.ToString();
+                            Console.WriteLine($"데이터베이스에서 반환된 날짜 문자열: '{dateStr}'");
+                            bool parseSuccess = DateTime.TryParseExact(dateStr, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);
+                            Console.WriteLine($"날짜 파싱 성공 여부: {parseSuccess}");
 
+                            if (parseSuccess)
+                            {
+                                return date;
+                            }
+                        }
+                    }
+                }
+                // 기본값으로 30일 전 날짜 반환
+                return DateTime.Today.AddDays(-30);
+            }
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog($"GetLastDateFromOpenAPI_AG_tb_reserviorlevel 오류: {ex.Message}");
+                // 오류 발생 시 기본값으로 30일 전 날짜 반환
+                return DateTime.Today.AddDays(-30);
+            }
+        }
         public static List<ReservoirLevelData> GetReservoirLevelData(string facCode, string startDate, string endDate)
         {
             List<ReservoirLevelData> result = new List<ReservoirLevelData>();
