@@ -374,6 +374,51 @@ namespace OpenAPI.DataServices
                 }
             }
         }
+        public static DateTime GetLastDateFromOpenAPI_WAMIS_mnhrdata()
+        {
+            string strConn = GetConnectionString();
+            using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT MAX(obsdh) FROM drought.tb_wamis_mnhrdata";
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                    {
+                        object result = cmd.ExecuteScalar();
+                        if (result != DBNull.Value)
+                        {
+                            DateTime dateTime;
+                            // obsdh 형식은 'YYYYMMDDHH'로 가정 (예: 2024123117)
+                            if (DateTime.TryParseExact(result.ToString(), "yyyyMMddHH", null, System.Globalization.DateTimeStyles.None, out dateTime))
+                            {
+                                return dateTime;
+                            }
+                            else
+                            {
+                                // 변환 실패 시 기본값 반환
+                                return DateTime.Now.AddDays(-30);
+                            }
+                        }
+                        else
+                        {
+                            // result가 DBNull.Value인 경우에 대한 처리
+                            return DateTime.Now.AddDays(-30);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GMLogHelper.WriteLog(ex.StackTrace);
+                    GMLogHelper.WriteLog(ex.Message);
+                    return DateTime.MinValue;
+                }
+            }
+        }
+
+
+
+
 
         public static List<FlowData> GetDailyDatasFromOpenAPIWAMISFlow(string obsCD, string sDate, string eDate)
         {
@@ -442,7 +487,47 @@ namespace OpenAPI.DataServices
                 return false;
             }
         }
-
+        public static DateTime GetLastDateFromOpenAPI_KMAASOS()
+        {
+            string strConn = GetConnectionString();
+            using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT MAX(tm) FROM drought.tb_kma_asos_dtdata";
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                    {
+                        object result = cmd.ExecuteScalar();
+                        if (result != DBNull.Value)
+                        {
+                            DateTime dateTime;
+                            if (DateTime.TryParseExact(result.ToString(), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out dateTime))
+                            {
+                                return dateTime;
+                            }
+                            else
+                            {
+                                // 변환 실패 시 기본값 반환
+                                return DateTime.Now.AddDays(-30);
+                            }
+                        }
+                        else
+                        {
+                            // result가 DBNull.Value인 경우에 대한 처리 추가
+                            return DateTime.Now.AddDays(-30);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GMLogHelper.WriteLog(ex.StackTrace);
+                    GMLogHelper.WriteLog(ex.Message);
+                    return DateTime.MinValue;
+                }
+            }
+        }
+        /*백업1
         public static bool BulkInsert_WAMISFlowDatas(List<FlowData> flowDatas)
         {
             string strConn = GetConnectionString();
@@ -492,8 +577,58 @@ namespace OpenAPI.DataServices
 
                 return false;
             }
-        }
+        }*/
+        public static bool BulkInsert_WAMISFlowDatas(List<FlowData> flowDatas)
+        {
+            string strConn = GetConnectionString();
+            try
+            {
+                StringBuilder query = new StringBuilder();
+                query.Append("INSERT INTO drought.tb_wamis_flowdtdata(obscd, ymd, flow) VALUES ");
+                int i = 0;
+                foreach (FlowData data in flowDatas)
+                {
+                    if (i != 0)
+                    {
+                        query.Append(" , ");
+                    }
 
+                    double? flowValue = null;
+                    if (double.IsNaN(data.flw))
+                    {
+                        flowValue = -9999;
+                    }
+                    else
+                    {
+                        flowValue = data.flw;
+                    }
+
+                    query.Append(string.Format("('{0}', '{1}', {2})", data.obscd, data.ymd, flowValue));
+                    i++;
+                }
+
+                // UPSERT 구문 추가
+                query.Append(" ON CONFLICT (obscd, ymd) DO UPDATE SET " +
+                             "flow = CASE " +
+                             "WHEN drought.tb_wamis_flowdtdata.flow = -9999 AND EXCLUDED.flow != -9999 THEN EXCLUDED.flow " +
+                             "ELSE drought.tb_wamis_flowdtdata.flow " +
+                             "END");
+
+                using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
+                {
+                    conn.Open();
+                    var command = new NpgsqlCommand(query.ToString(), conn);
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog(ex.StackTrace);
+                GMLogHelper.WriteLog(ex.Message);
+                return false;
+            }
+        }
         public static List<AgriDamSpec> Get_AgriDamSpec()
         {
             List<AgriDamSpec> listAgriDam = new List<AgriDamSpec>();
@@ -539,7 +674,126 @@ namespace OpenAPI.DataServices
             }
         }
 
+        public static DateTime GetLastDateFromOpenAPI_WAMIS_Flow()
+        {
+            string strConn = GetConnectionString();
+            using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT MAX(TO_DATE(ymd, 'YYYYMMDD')) FROM drought.tb_wamis_flowdtdata";
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                    {
+                        object result = cmd.ExecuteScalar();
+                        if (result != DBNull.Value && result != null)
+                        {
+                            return Convert.ToDateTime(result);
+                        }
+                        else
+                        {
+                            // 데이터가 없는 경우 기본값 반환
+                            return DateTime.Now.AddDays(-30);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GMLogHelper.WriteLog(ex.StackTrace);
+                    GMLogHelper.WriteLog(ex.Message);
+                    return DateTime.MinValue;
+                }
+            }
+        }
+        public static bool BulkInsert_ReservoirLevelData(List<ReservoirLevelData> dataList)
+        {
+            string strConn = GetConnectionString();
+            try
+            {
+                StringBuilder query = new StringBuilder();
+                query.Append("INSERT INTO drought.tb_reserviorlevel (fac_code, check_date, county, fac_name, rate) VALUES ");
 
+                int i = 0;
+                foreach (ReservoirLevelData data in dataList)
+                {
+                    if (i != 0)
+                    {
+                        query.Append(" , ");
+                    }
+
+
+
+                    query.Append(string.Format("('{0}', '{1}', '{2}', '{3}', '{4}')",
+                        data.fac_code, data.check_date, data.county, data.fac_name, data.rate));
+                    i++;
+                }
+
+                // 중복 데이터 처리를 위한 UPSERT 구문 추가
+                query.Append(" ON CONFLICT (fac_code, check_date) DO UPDATE SET " +
+                            "county = EXCLUDED.county, " +
+                            "fac_name = EXCLUDED.fac_name, " +
+                            "rate = EXCLUDED.rate " );
+
+                using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
+                {
+                    conn.Open();
+                    var command = new NpgsqlCommand(query.ToString(), conn);
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog(ex.StackTrace);
+                GMLogHelper.WriteLog(ex.Message);
+                return false;
+            }
+        }
+
+        public static List<ReservoirLevelData> GetReservoirLevelData(string facCode, string startDate, string endDate)
+        {
+            List<ReservoirLevelData> result = new List<ReservoirLevelData>();
+            try
+            {
+                string query = @"SELECT check_date, county, fac_code, fac_name, rate 
+                        FROM drought.tb_reserviorlevel 
+                        WHERE fac_code = @facCode 
+                        AND check_date BETWEEN @startDate AND @endDate";
+
+                using (NpgsqlConnection conn = new NpgsqlConnection(GetConnectionString()))
+                {
+                    conn.Open();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@facCode", facCode);
+                        cmd.Parameters.AddWithValue("@startDate", startDate);
+                        cmd.Parameters.AddWithValue("@endDate", endDate);
+
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                ReservoirLevelData data = new ReservoirLevelData
+                                {
+                                    check_date = reader["check_date"].ToString(),
+                                    county = reader["county"].ToString(),
+                                    fac_code = reader["fac_code"].ToString(),
+                                    fac_name = reader["fac_name"].ToString(),
+                                    rate = reader["rate"].ToString()
+                                };
+                                result.Add(data);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog($"GetReservoirLevelData 오류: {ex.Message}");
+                GMLogHelper.WriteLog($"StackTrace: {ex.StackTrace}");
+            }
+            return result;
+        }
 
         #endregion
 

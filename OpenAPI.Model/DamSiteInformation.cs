@@ -23,7 +23,7 @@ namespace OpenAPI.Model
         /// </summary>
         public string bbsncd { get; set; }
 
-        /// <summary>
+         /// <summary>
         /// 표준유역코드
         /// </summary>
         public string sbsncd { get; set; }

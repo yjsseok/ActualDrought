@@ -1,4 +1,5 @@
-﻿namespace Service.DataCollect.Dam
+﻿namespace Service.DataCollect.AG
+
 {
     partial class frmMain
     {
@@ -54,7 +55,7 @@
             this.configToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(460, 30);
+            this.menuStrip1.Size = new System.Drawing.Size(460, 28);
             this.menuStrip1.TabIndex = 48;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -172,7 +173,7 @@
             this.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "frmMain";
-            this.Text = "Service DataCollecter (Dam)";
+            this.Text = "Service DataCollecter (AG)";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

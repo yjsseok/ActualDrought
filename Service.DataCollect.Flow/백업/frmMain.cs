@@ -54,9 +54,14 @@ namespace Service.DataCollect.Flow
             InitializeSites();
 
             if (InitializeDatabase() == true)
-            {  }
+            {
+
+            }
             else
-            {  }
+            {
+
+            }
+
         }
 
         private void InitializeLogNBuild()
@@ -76,10 +81,8 @@ namespace Service.DataCollect.Flow
             _global.RealTimeUse = BizCommon.BoolConvert(Config.RealTimeUse);
             _global.PeriodUse = BizCommon.BoolConvert(Config.PeriodUse);
 
-            // frmConfig의 DTP에서 날짜 범위 가져오기
-            frmConfig configForm = new frmConfig();
-            _global.startDate = configForm.dtpStart.Value;
-            _global.endDate = configForm.dtpEnd.Value;
+    //        _global.startDate = new DateTime(Config.StartDate, 1, 1);//////// JS
+    //        _global.endDate = new DateTime(Config.EndDate, 12, 31);////////JS
         }
 
         private void InitializeSites()
@@ -188,7 +191,7 @@ namespace Service.DataCollect.Flow
             {
                 #region [WAMIS Flow 자료수집 구동]
                 //임시로 리얼타임 돌리지 않음
-               // _global.RealTimeUse = true;
+                _global.RealTimeUse = false;
 
                 if (_global.RealTimeUse == true)
                 {
@@ -232,38 +235,24 @@ namespace Service.DataCollect.Flow
             }
         }
 
-
+        
 
         private void ServiceStop()
         {
             try
             {
-                // 실시간 데이터 수집 스레드 종료
                 if (thOpenAPI_WAMIS_Flow != null && thOpenAPI_WAMIS_Flow.IsAlive)
                 {
                     thOpenAPI_WAMIS_Flow.Abort();
-                }
-
-                // 기간별 데이터 수집 스레드 종료
-                if (thOpenAPI_WAMIS_Period != null && thOpenAPI_WAMIS_Period.IsAlive)
-                {
-                    thOpenAPI_WAMIS_Period.Abort();
-                }
-
-                // 결과 처리 스레드 종료
-                if (thOpenAPI_WAMIS_Result != null && thOpenAPI_WAMIS_Result.IsAlive)
-                {
-                    thOpenAPI_WAMIS_Result.Abort();
                 }
 
                 isServiceRunning = false; // 서비스 실행 상태 해제
             }
             catch (Exception ex)
             {
-                GMLogHelper.WriteLog(string.Format("Error stopping service: {0}", ex.Message));
+                GMLogHelper.WriteLog($"Error stopping service: {ex.Message}");
             }
         }
-
 
         private void OpenAPI_WAMIS_Flow_AutoCaller() /////JS
         {
@@ -279,46 +268,12 @@ namespace Service.DataCollect.Flow
             }
         }
 
-
-        /*백업1
-        private async void OpenAPI_WAMIS_Flow_Service()
+        private void OpenAPI_WAMIS_Flow_Service()
         {
-            try
-            {
-                this.WriteStatus("WAMIS Flow Module Start");
-                string serviceURL = "http://www.wamis.go.kr:8080/wamis/openapi/wkw/flw_dtdata";
-                string authKey = "b4568bbc61dabc1ce232c94d538f9f7d45229c1620";
-
-                foreach (FlowSiteInformation obs in _global.listFlowOBS)
-                {
-                    this.WriteStatus($"{obs.obsnm} 관측소 데이터 수집 시작");
-                    int year = DateTime.Now.Year;
-                    string parameters = $"?obscd={obs.obscd}&year={year}&authKey={authKey}";
-                    Uri uri = new Uri(serviceURL + parameters);
-
-                    List<FlowData> flowData = await WAMIS_Controller.GetFlowDataAsync(obs.obscd, year);
-                    if (flowData != null && flowData.Count > 0)
-                    {
-                        this.WriteStatus($"수집된 {obs.obsnm} 관측소 데이터: {flowData.Count}개");
-                        EnqueueOpenAPIWAMISFlowResult(flowData);
-                    }
-                    else
-                    {
-                        this.WriteStatus($"{obs.obsnm} 관측소 데이터 없음");
-                    }
-                    Thread.Sleep(1000);
-                }
-                this.WriteStatus("WAMIS Flow Module End");
-            }
-            catch (Exception ex)
-            {
-                GMLogHelper.WriteLog($"StackTrace: {ex.StackTrace}");
-                GMLogHelper.WriteLog($"Message: {ex.Message}");
-                this.WriteStatus($"WAMIS Flow Module Error: {ex.Message}");
-            }
+            this.WriteStatus("Wamis_Flow Module Start");
+            ////// /////JS
         }
 
-        
         private async void OpenAPI_WAMIS_Flow_PeriodCaller()
         {
             foreach (FlowSiteInformation obs in _global.listFlowOBS)
@@ -349,187 +304,6 @@ namespace Service.DataCollect.Flow
                         //DataQueue에 넣기
                         if (dailyFlowDataList.Count > 0)
                         {
-                            EnqueueOpenAPIWAMISFlowResult(dailyFlowDataList);
-                        }
-                    }
-                }
-            }
-        }*/
-        private async void OpenAPI_WAMIS_Flow_Service()
-        {
-            try
-            {
-                this.WriteStatus("WAMIS Flow Module Start");
-
-                // DB에서 최종 데이터 일자 조회
-                DateTime lastDate = NpgSQLService.GetLastDateFromOpenAPI_WAMIS_Flow();
-                DateTime today = DateTime.Today;
-
-                // 최종 데이터가 오늘 날짜보다 이후인 경우 작업 취소
-                if (lastDate.Date >= today.Date)
-                {
-                    WriteStatus(string.Format("최종 데이터({0})가 오늘자입니다. 데이터 수집을 건너뜁니다.",
-                        lastDate.ToString("yyyy-MM-dd"), today.ToString("yyyy-MM-dd")));
-                    return; // 메서드 종료
-                }
-
-                string serviceURL = "http://www.wamis.go.kr:8080/wamis/openapi/wkw/flw_dtdata";
-                string authKey = "b4568bbc61dabc1ce232c94d538f9f7d45229c1620";
-                foreach (FlowSiteInformation obs in _global.listFlowOBS)
-                {
-                    this.WriteStatus($"{obs.obsnm} 관측소 데이터 수집 시작");
-                    int year = DateTime.Now.Year;
-                    string parameters = $"?obscd={obs.obscd}&year={year}&authKey={authKey}";
-                    Uri uri = new Uri(serviceURL + parameters);
-                    List<FlowData> flowData = await WAMIS_Controller.GetFlowDataAsync(obs.obscd, year);
-
-                    if (flowData != null && flowData.Count > 0)
-                    {
-                        // 현재 날짜까지만 필터링
-                        List<FlowData> filteredData = new List<FlowData>();
-                        DateTime currentDate = DateTime.Now;
-
-                        foreach (var data in flowData)
-                        {
-                            if (DateTime.TryParseExact(data.ymd, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime dataDate))
-                            {
-                                if (dataDate <= currentDate)
-                                {
-                                    filteredData.Add(data);
-                                }
-                            }
-                        }
-
-                        this.WriteStatus($"수집된 {obs.obsnm} 관측소 데이터: {filteredData.Count}개 (필터링 전: {flowData.Count}개)");
-
-                        if (filteredData.Count > 0)
-                        {
-                            EnqueueOpenAPIWAMISFlowResult(filteredData);
-                        }
-                    }
-                    else
-                    {
-                        this.WriteStatus($"{obs.obsnm} 관측소 데이터 없음");
-                    }
-                    Thread.Sleep(100);
-                }
-                this.WriteStatus("WAMIS Flow Module End");
-            }
-            catch (Exception ex)
-            {
-                GMLogHelper.WriteLog($"StackTrace: {ex.StackTrace}");
-                GMLogHelper.WriteLog($"Message: {ex.Message}");
-                this.WriteStatus($"WAMIS Flow Module Error: {ex.Message}");
-            }
-        }
-        /*
-        private async void OpenAPI_WAMIS_Flow_PeriodCaller()
-        {
-            foreach (FlowSiteInformation obs in _global.listFlowOBS)
-            {
-                for (int i = obs.minYear; i <= obs.maxYear; i++)
-                {
-                    List<FlowData> flowData = await WAMIS_Controller.GetFlowDataAsync(obs.obscd, i);
-                    if (flowData != null)
-                    {
-                        // 데이터 생성 및 List에 저장
-                        List<FlowData> dailyFlowDataList = new List<FlowData>();
-                        DateTime startDate = new DateTime(i, 1, 1);
-
-                        // 현재 연도인 경우 오늘까지만 처리
-                        DateTime endDate;
-                        if (i == DateTime.Now.Year)
-                        {
-                            endDate = DateTime.Now;
-                            this.WriteStatus($"{obs.obsnm} 관측소 {i}년 데이터 - 현재 날짜({endDate.ToString("yyyy-MM-dd")})까지만 처리");
-                        }
-                        else
-                        {
-                            endDate = new DateTime(i, 12, 31);
-                            this.WriteStatus($"{obs.obsnm} 관측소 {i}년 데이터 - 전체 처리");
-                        }
-
-                        int totalDays = (endDate - startDate).Days + 1;
-
-                        for (int j = 0; j < totalDays; j++)
-                        {
-                            DateTime currentDate = startDate.AddDays(j);
-                            string ymd = currentDate.ToString("yyyyMMdd");
-
-                            FlowData dailyFlowData = new FlowData { obscd = obs.obscd, ymd = ymd, flw = double.NaN }; // 기본값으로 NaN 설정
-                            if (flowData.Any(data => data.ymd == ymd))
-                                dailyFlowData.flw = flowData.FirstOrDefault(data => data.ymd == ymd).flw;
-
-                            dailyFlowDataList.Add(dailyFlowData);
-                        }
-
-                        //DataQueue에 넣기
-                        if (dailyFlowDataList.Count > 0)
-                        {
-                            this.WriteStatus($"{obs.obsnm} 관측소 {i}년 처리 데이터 수: {dailyFlowDataList.Count}개");
-                            EnqueueOpenAPIWAMISFlowResult(dailyFlowDataList);
-                        }
-                    }
-                }
-            }
-        }*/
-        private async void OpenAPI_WAMIS_Flow_PeriodCaller()
-        {
-            foreach (FlowSiteInformation obs in _global.listFlowOBS)
-            {
-                // 설정된 기간에서 연도 범위 추출
-                int startYear = _global.startDate.Year;
-                int endYear = _global.endDate.Year;
-
-                // 설정된 기간과 관측소의 연도 범위 중 겹치는 부분만 처리
-                int processStartYear = Math.Max(obs.minYear, startYear);
-                int processEndYear = Math.Min(obs.maxYear, endYear);
-
-                for (int i = processStartYear; i <= processEndYear; i++)
-                {
-                    List<FlowData> flowData = await WAMIS_Controller.GetFlowDataAsync(obs.obscd, i);
-                    if (flowData != null)
-                    {
-                        // 데이터 생성 및 List에 저장
-                        List<FlowData> dailyFlowDataList = new List<FlowData>();
-
-                        // 해당 연도의 시작일과 종료일 설정
-                        DateTime yearStartDate = new DateTime(i, 1, 1);
-                        DateTime yearEndDate = new DateTime(i, 12, 31);
-
-                        // 설정된 기간 내에서만 처리
-                        DateTime periodStartDate = (i == startYear) ? _global.startDate : yearStartDate;
-                        DateTime periodEndDate = (i == endYear) ? _global.endDate : yearEndDate;
-
-                        // 현재 연도인 경우 오늘까지만 처리
-                        if (i == DateTime.Now.Year)
-                        {
-                            periodEndDate = DateTime.Now < periodEndDate ? DateTime.Now : periodEndDate;
-                            this.WriteStatus($"{obs.obsnm} 관측소 {i}년 데이터 - 현재 날짜({periodEndDate.ToString("yyyy-MM-dd")})까지만 처리");
-                        }
-                        else
-                        {
-                            this.WriteStatus($"{obs.obsnm} 관측소 {i}년 데이터 - {periodStartDate.ToString("yyyy-MM-dd")}부터 {periodEndDate.ToString("yyyy-MM-dd")}까지 처리");
-                        }
-
-                        int totalDays = (periodEndDate - periodStartDate).Days + 1;
-
-                        for (int j = 0; j < totalDays; j++)
-                        {
-                            DateTime currentDate = periodStartDate.AddDays(j);
-                            string ymd = currentDate.ToString("yyyyMMdd");
-
-                            FlowData dailyFlowData = new FlowData { obscd = obs.obscd, ymd = ymd, flw = double.NaN }; // 기본값으로 NaN 설정
-                            if (flowData.Any(data => data.ymd == ymd))
-                                dailyFlowData.flw = flowData.FirstOrDefault(data => data.ymd == ymd).flw;
-
-                            dailyFlowDataList.Add(dailyFlowData);
-                        }
-
-                        //DataQueue에 넣기
-                        if (dailyFlowDataList.Count > 0)
-                        {
-                            this.WriteStatus($"{obs.obsnm} 관측소 {i}년 처리 데이터 수: {dailyFlowDataList.Count}개");
                             EnqueueOpenAPIWAMISFlowResult(dailyFlowDataList);
                         }
                     }

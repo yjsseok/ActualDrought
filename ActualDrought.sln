@@ -25,6 +25,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.DataCollect.Flow", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JBFileMaker", "JBFileMaker\JBFileMaker.csproj", "{941DCB47-BFA1-4FFA-A2D6-B22769064DBF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "솔루션 항목", "솔루션 항목", "{90B95C55-61E9-4680-AB95-2F418880E1D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.DataCollect.AG", "Service.DataCollect.AG\Service.DataCollect.AG.csproj", "{764D5211-0941-4913-8168-B8615CF4DCB2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,10 @@ Global
 		{941DCB47-BFA1-4FFA-A2D6-B22769064DBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{941DCB47-BFA1-4FFA-A2D6-B22769064DBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{941DCB47-BFA1-4FFA-A2D6-B22769064DBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{764D5211-0941-4913-8168-B8615CF4DCB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{764D5211-0941-4913-8168-B8615CF4DCB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{764D5211-0941-4913-8168-B8615CF4DCB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{764D5211-0941-4913-8168-B8615CF4DCB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

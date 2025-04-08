@@ -85,18 +85,18 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 26);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(800, 536);
+            this.panel1.Size = new System.Drawing.Size(1171, 576);
             this.panel1.TabIndex = 45;
             // 
             // listStatus
             // 
             this.listStatus.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listStatus.FormattingEnabled = true;
-            this.listStatus.ItemHeight = 15;
-            this.listStatus.Location = new System.Drawing.Point(0, 97);
+            this.listStatus.ItemHeight = 20;
+            this.listStatus.Location = new System.Drawing.Point(0, 52);
             this.listStatus.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.listStatus.Name = "listStatus";
-            this.listStatus.Size = new System.Drawing.Size(800, 439);
+            this.listStatus.Size = new System.Drawing.Size(1171, 524);
             this.listStatus.TabIndex = 115;
             // 
             // ultraLabel2
@@ -110,10 +110,10 @@
             this.ultraLabel2.BorderStyleInner = Infragistics.Win.UIElementBorderStyle.RaisedSoft;
             this.ultraLabel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.ultraLabel2.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.ultraLabel2.Location = new System.Drawing.Point(0, 74);
+            this.ultraLabel2.Location = new System.Drawing.Point(0, 29);
             this.ultraLabel2.Name = "ultraLabel2";
             this.ultraLabel2.Padding = new System.Drawing.Size(10, 0);
-            this.ultraLabel2.Size = new System.Drawing.Size(800, 23);
+            this.ultraLabel2.Size = new System.Drawing.Size(1171, 23);
             this.ultraLabel2.TabIndex = 109;
             this.ultraLabel2.Text = "처리정보";
             this.ultraLabel2.UseAppStyling = false;
@@ -124,9 +124,9 @@
             this._panel1_Toolbars_Dock_Area_Left.BackColor = System.Drawing.SystemColors.Control;
             this._panel1_Toolbars_Dock_Area_Left.DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition.Left;
             this._panel1_Toolbars_Dock_Area_Left.ForeColor = System.Drawing.SystemColors.ControlText;
-            this._panel1_Toolbars_Dock_Area_Left.Location = new System.Drawing.Point(0, 74);
+            this._panel1_Toolbars_Dock_Area_Left.Location = new System.Drawing.Point(0, 29);
             this._panel1_Toolbars_Dock_Area_Left.Name = "_panel1_Toolbars_Dock_Area_Left";
-            this._panel1_Toolbars_Dock_Area_Left.Size = new System.Drawing.Size(0, 462);
+            this._panel1_Toolbars_Dock_Area_Left.Size = new System.Drawing.Size(0, 547);
             this._panel1_Toolbars_Dock_Area_Left.ToolbarsManager = this.ultraToolbarsManager1;
             // 
             // ultraToolbarsManager1
@@ -207,9 +207,9 @@
             this._panel1_Toolbars_Dock_Area_Right.BackColor = System.Drawing.SystemColors.Control;
             this._panel1_Toolbars_Dock_Area_Right.DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition.Right;
             this._panel1_Toolbars_Dock_Area_Right.ForeColor = System.Drawing.SystemColors.ControlText;
-            this._panel1_Toolbars_Dock_Area_Right.Location = new System.Drawing.Point(800, 74);
+            this._panel1_Toolbars_Dock_Area_Right.Location = new System.Drawing.Point(1171, 29);
             this._panel1_Toolbars_Dock_Area_Right.Name = "_panel1_Toolbars_Dock_Area_Right";
-            this._panel1_Toolbars_Dock_Area_Right.Size = new System.Drawing.Size(0, 462);
+            this._panel1_Toolbars_Dock_Area_Right.Size = new System.Drawing.Size(0, 547);
             this._panel1_Toolbars_Dock_Area_Right.ToolbarsManager = this.ultraToolbarsManager1;
             // 
             // _panel1_Toolbars_Dock_Area_Bottom
@@ -218,9 +218,9 @@
             this._panel1_Toolbars_Dock_Area_Bottom.BackColor = System.Drawing.SystemColors.Control;
             this._panel1_Toolbars_Dock_Area_Bottom.DockedPosition = Infragistics.Win.UltraWinToolbars.DockedPosition.Bottom;
             this._panel1_Toolbars_Dock_Area_Bottom.ForeColor = System.Drawing.SystemColors.ControlText;
-            this._panel1_Toolbars_Dock_Area_Bottom.Location = new System.Drawing.Point(0, 536);
+            this._panel1_Toolbars_Dock_Area_Bottom.Location = new System.Drawing.Point(0, 576);
             this._panel1_Toolbars_Dock_Area_Bottom.Name = "_panel1_Toolbars_Dock_Area_Bottom";
-            this._panel1_Toolbars_Dock_Area_Bottom.Size = new System.Drawing.Size(800, 0);
+            this._panel1_Toolbars_Dock_Area_Bottom.Size = new System.Drawing.Size(1171, 0);
             this._panel1_Toolbars_Dock_Area_Bottom.ToolbarsManager = this.ultraToolbarsManager1;
             // 
             // _panel1_Toolbars_Dock_Area_Top
@@ -231,7 +231,7 @@
             this._panel1_Toolbars_Dock_Area_Top.ForeColor = System.Drawing.SystemColors.ControlText;
             this._panel1_Toolbars_Dock_Area_Top.Location = new System.Drawing.Point(0, 0);
             this._panel1_Toolbars_Dock_Area_Top.Name = "_panel1_Toolbars_Dock_Area_Top";
-            this._panel1_Toolbars_Dock_Area_Top.Size = new System.Drawing.Size(800, 74);
+            this._panel1_Toolbars_Dock_Area_Top.Size = new System.Drawing.Size(1171, 29);
             this._panel1_Toolbars_Dock_Area_Top.ToolbarsManager = this.ultraToolbarsManager1;
             // 
             // ultraLabel1
@@ -248,7 +248,7 @@
             this.ultraLabel1.Location = new System.Drawing.Point(0, 0);
             this.ultraLabel1.Name = "ultraLabel1";
             this.ultraLabel1.Padding = new System.Drawing.Size(10, 0);
-            this.ultraLabel1.Size = new System.Drawing.Size(800, 26);
+            this.ultraLabel1.Size = new System.Drawing.Size(1171, 26);
             this.ultraLabel1.TabIndex = 44;
             this.ultraLabel1.Text = "농업용저수지 일자료";
             // 
@@ -256,21 +256,21 @@
             // 
             this.dtpEnd.Location = new System.Drawing.Point(-4819, -4732);
             this.dtpEnd.Name = "dtpEnd";
-            this.dtpEnd.Size = new System.Drawing.Size(200, 23);
+            this.dtpEnd.Size = new System.Drawing.Size(200, 27);
             this.dtpEnd.TabIndex = 47;
             // 
             // dtpStart
             // 
             this.dtpStart.Location = new System.Drawing.Point(5420, 5271);
             this.dtpStart.Name = "dtpStart";
-            this.dtpStart.Size = new System.Drawing.Size(200, 23);
+            this.dtpStart.Size = new System.Drawing.Size(200, 27);
             this.dtpStart.TabIndex = 46;
             // 
             // frmPDP_AgriDam
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 562);
+            this.ClientSize = new System.Drawing.Size(1171, 602);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.ultraLabel1);
             this.Controls.Add(this.dtpEnd);

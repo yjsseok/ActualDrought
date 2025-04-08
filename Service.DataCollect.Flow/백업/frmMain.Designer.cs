@@ -1,4 +1,4 @@
-﻿namespace Service.DataCollect.Dam
+﻿namespace Service.DataCollect.Flow
 {
     partial class frmMain
     {
@@ -31,10 +31,10 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.systemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.testCallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.periodSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.testCallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
@@ -47,15 +47,16 @@
             // 
             // menuStrip1
             // 
+            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.systemToolStripMenuItem,
-            this.toolsToolStripMenuItem,
-            this.configToolStripMenuItem});
+            this.configToolStripMenuItem,
+            this.toolsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(460, 30);
-            this.menuStrip1.TabIndex = 48;
+            this.menuStrip1.Size = new System.Drawing.Size(459, 33);
+            this.menuStrip1.TabIndex = 54;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // systemToolStripMenuItem
@@ -63,43 +64,43 @@
             this.systemToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exitToolStripMenuItem});
             this.systemToolStripMenuItem.Name = "systemToolStripMenuItem";
-            this.systemToolStripMenuItem.Size = new System.Drawing.Size(70, 24);
+            this.systemToolStripMenuItem.Size = new System.Drawing.Size(87, 29);
             this.systemToolStripMenuItem.Text = "System";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(116, 26);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(141, 34);
             this.exitToolStripMenuItem.Text = "Exit";
-            // 
-            // toolsToolStripMenuItem
-            // 
-            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.testCallToolStripMenuItem});
-            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(59, 24);
-            this.toolsToolStripMenuItem.Text = "Tools";
-            // 
-            // testCallToolStripMenuItem
-            // 
-            this.testCallToolStripMenuItem.Name = "testCallToolStripMenuItem";
-            this.testCallToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
-            this.testCallToolStripMenuItem.Text = "Test Call";
             // 
             // configToolStripMenuItem
             // 
             this.configToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.periodSettingToolStripMenuItem});
             this.configToolStripMenuItem.Name = "configToolStripMenuItem";
-            this.configToolStripMenuItem.Size = new System.Drawing.Size(69, 24);
+            this.configToolStripMenuItem.Size = new System.Drawing.Size(81, 29);
             this.configToolStripMenuItem.Text = "Config";
             // 
             // periodSettingToolStripMenuItem
             // 
             this.periodSettingToolStripMenuItem.Name = "periodSettingToolStripMenuItem";
-            this.periodSettingToolStripMenuItem.Size = new System.Drawing.Size(189, 26);
-            this.periodSettingToolStripMenuItem.Text = "Period Setting";
+            this.periodSettingToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.periodSettingToolStripMenuItem.Text = "Setting";
             this.periodSettingToolStripMenuItem.Click += new System.EventHandler(this.periodSettingToolStripMenuItem_Click);
+            // 
+            // toolsToolStripMenuItem
+            // 
+            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.testCallToolStripMenuItem});
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(72, 29);
+            this.toolsToolStripMenuItem.Text = "Tools";
+            // 
+            // testCallToolStripMenuItem
+            // 
+            this.testCallToolStripMenuItem.Name = "testCallToolStripMenuItem";
+            this.testCallToolStripMenuItem.Size = new System.Drawing.Size(182, 34);
+            this.testCallToolStripMenuItem.Text = "Test Call";
             // 
             // groupBox1
             // 
@@ -108,7 +109,7 @@
             this.groupBox1.Location = new System.Drawing.Point(12, 27);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(437, 67);
-            this.groupBox1.TabIndex = 49;
+            this.groupBox1.TabIndex = 55;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Service Control";
             // 
@@ -137,12 +138,11 @@
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.AutoSize = true;
             this.groupBox2.Controls.Add(this.listStatus);
             this.groupBox2.Location = new System.Drawing.Point(12, 100);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(437, 164);
-            this.groupBox2.TabIndex = 50;
+            this.groupBox2.Size = new System.Drawing.Size(435, 174);
+            this.groupBox2.TabIndex = 56;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Event Logs";
             // 
@@ -152,27 +152,25 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listStatus.FormattingEnabled = true;
-            this.listStatus.ItemHeight = 20;
+            this.listStatus.ItemHeight = 25;
             this.listStatus.Location = new System.Drawing.Point(12, 23);
             this.listStatus.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.listStatus.Name = "listStatus";
-            this.listStatus.Size = new System.Drawing.Size(419, 104);
+            this.listStatus.Size = new System.Drawing.Size(417, 129);
             this.listStatus.TabIndex = 25;
             // 
             // frmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
-            this.ClientSize = new System.Drawing.Size(460, 275);
+            this.ClientSize = new System.Drawing.Size(459, 286);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
             this.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "frmMain";
-            this.Text = "Service DataCollecter (Dam)";
+            this.Text = "Service DataCollecter (Flow)";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -188,6 +186,8 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem systemToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem configToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem periodSettingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem testCallToolStripMenuItem;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -195,8 +195,6 @@
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ListBox listStatus;
-        private System.Windows.Forms.ToolStripMenuItem configToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem periodSettingToolStripMenuItem;
     }
 }
 

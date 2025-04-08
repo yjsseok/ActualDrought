@@ -9,11 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Service.DataCollect.Flow
+namespace Service.DataCollect.AG
 {
     public partial class frmConfig : Form
     {
         public Global _global { get; set; }
+
         public frmConfig()
         {
             InitializeComponent();
@@ -50,7 +51,6 @@ namespace Service.DataCollect.Flow
             {
                 _global.startDate = this.dtpStart.Value;
                 _global.endDate = this.dtpEnd.Value;
-                _global.RealTimeUse = this.chkRealTime.Checked;
                 _global.PeriodUse = this.chkPeriod.Checked;
 
                 return true;
@@ -59,10 +59,6 @@ namespace Service.DataCollect.Flow
             {
                 return false;
             }
-        }
-
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
 
         }
     }

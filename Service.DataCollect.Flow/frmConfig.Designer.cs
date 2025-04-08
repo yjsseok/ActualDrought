@@ -55,13 +55,14 @@
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Period Setting";
+            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
             // chkPeriod
             // 
             this.chkPeriod.AutoSize = true;
             this.chkPeriod.Location = new System.Drawing.Point(22, 89);
             this.chkPeriod.Name = "chkPeriod";
-            this.chkPeriod.Size = new System.Drawing.Size(82, 29);
+            this.chkPeriod.Size = new System.Drawing.Size(66, 24);
             this.chkPeriod.TabIndex = 4;
             this.chkPeriod.Text = "IsUse";
             this.chkPeriod.UseVisualStyleBackColor = true;
@@ -70,7 +71,7 @@
             // 
             this.dtpEnd.Location = new System.Drawing.Point(80, 51);
             this.dtpEnd.Name = "dtpEnd";
-            this.dtpEnd.Size = new System.Drawing.Size(178, 31);
+            this.dtpEnd.Size = new System.Drawing.Size(178, 27);
             this.dtpEnd.TabIndex = 3;
             // 
             // label2
@@ -78,7 +79,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(22, 55);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(81, 25);
+            this.label2.Size = new System.Drawing.Size(67, 20);
             this.label2.TabIndex = 2;
             this.label2.Text = "endDate";
             // 
@@ -86,7 +87,7 @@
             // 
             this.dtpStart.Location = new System.Drawing.Point(80, 19);
             this.dtpStart.Name = "dtpStart";
-            this.dtpStart.Size = new System.Drawing.Size(178, 31);
+            this.dtpStart.Size = new System.Drawing.Size(178, 27);
             this.dtpStart.TabIndex = 1;
             // 
             // label1
@@ -94,7 +95,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(19, 25);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(85, 25);
+            this.label1.Size = new System.Drawing.Size(70, 20);
             this.label1.TabIndex = 0;
             this.label1.Text = "startDate";
             // 
@@ -106,6 +107,7 @@
             this.btnCancel.TabIndex = 8;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // btnOK
             // 
@@ -115,6 +117,7 @@
             this.btnOK.TabIndex = 7;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
+            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
             // groupBox2
             // 
@@ -131,14 +134,14 @@
             this.chkRealTime.AutoSize = true;
             this.chkRealTime.Location = new System.Drawing.Point(22, 30);
             this.chkRealTime.Name = "chkRealTime";
-            this.chkRealTime.Size = new System.Drawing.Size(82, 29);
+            this.chkRealTime.Size = new System.Drawing.Size(66, 24);
             this.chkRealTime.TabIndex = 4;
             this.chkRealTime.Text = "IsUse";
             this.chkRealTime.UseVisualStyleBackColor = true;
             // 
             // frmConfig
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(308, 286);
             this.Controls.Add(this.groupBox2);
@@ -159,15 +162,15 @@
 
         #endregion
 
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.CheckBox chkPeriod;
-        private System.Windows.Forms.DateTimePicker dtpEnd;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.DateTimePicker dtpStart;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.Button btnOK;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.CheckBox chkRealTime;
+        public System.Windows.Forms.GroupBox groupBox1;
+        public System.Windows.Forms.CheckBox chkPeriod;
+        public System.Windows.Forms.DateTimePicker dtpEnd;
+        public System.Windows.Forms.Label label2;
+        public System.Windows.Forms.DateTimePicker dtpStart;
+        public System.Windows.Forms.Label label1;
+        public System.Windows.Forms.Button btnCancel;
+        public System.Windows.Forms.Button btnOK;
+        public System.Windows.Forms.GroupBox groupBox2;
+        public System.Windows.Forms.CheckBox chkRealTime;
     }
 }
