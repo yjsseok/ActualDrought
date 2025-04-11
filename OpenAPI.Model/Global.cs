@@ -31,7 +31,7 @@ namespace OpenAPI.Model
         public List<DamSiteInformation> listDams { get; set; }
         private Global()
         {
-            this.RealTimeUse = true;
+            this.RealTimeUse = false;
             this.PeriodUse = false;
 
             this.listFlowOBS = new List<FlowSiteInformation>();
