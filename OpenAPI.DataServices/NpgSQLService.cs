@@ -267,29 +267,95 @@ namespace OpenAPI.DataServices
                 try
                 {
                     conn.Open();
+                    GMLogHelper.WriteLog($"데이터베이스 쿼리 시작 - 관측소: {stnID}, 기간: {sDate:yyyy-MM-dd} ~ {eDate:yyyy-MM-dd}");
 
-                    string query = string.Format("SELECT * FROM drought.tb_kma_asos_dtdata WHERE stn = {0} AND tm >= '{1}' AND tm <= '{2}' ORDER BY tm", stnID, sDate.ToString("yyyy-MM-dd HH:mm:ss"), eDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                    string query = string.Format("SELECT * FROM drought.tb_kma_asos_dtdata WHERE stn = {0} AND tm >= '{1}' AND tm <= '{2}' ORDER BY tm", 
+                        stnID, sDate.ToString("yyyy-MM-dd HH:mm:ss"), eDate.ToString("yyyy-MM-dd HH:mm:ss"));
                     DataTable dt = DirectQuery(query, conn);
+
+                    GMLogHelper.WriteLog($"쿼리 결과 레코드 수: {dt.Rows.Count}");
 
                     foreach (DataRow dr in dt.Rows)
                     {
-                        rcvKMAASOSData addData = new rcvKMAASOSData();
+                        try
+                        {
+                            rcvKMAASOSData addData = new rcvKMAASOSData();
 
-                        addData.STN = DT_GetToInt(dr, "stn");
-                        addData.TM = DT_GetTostring(dr, "tm");
+                            addData.STN = DT_GetToInt(dr, "stn");
+                            addData.TM = DT_GetTostring(dr, "tm");
+                            addData.WS_AVG = DT_GetTodouble(dr, "ws_avg");
+                            addData.WR_DAY = DT_GetTodouble(dr, "wr_day");
+                            addData.WD_MAX = DT_GetTodouble(dr, "wd_max");
+                            addData.WS_MAX = DT_GetTodouble(dr, "ws_max");
+                            addData.WS_MAX_TM = DT_GetTodouble(dr, "ws_max_tm");
+                            addData.WD_INS = DT_GetTodouble(dr, "wd_ins");
+                            addData.WS_INS = DT_GetTodouble(dr, "ws_ins");
+                            addData.WS_INS_TM = DT_GetTodouble(dr, "ws_ins_tm");
+                            addData.TA_AVG = DT_GetTodouble(dr, "ta_avg");
+                            addData.TA_MAX = DT_GetTodouble(dr, "ta_max");
+                            addData.TA_MAX_TM = DT_GetTodouble(dr, "ta_max_tm");
+                            addData.TA_MIN = DT_GetTodouble(dr, "ta_min");
+                            addData.TA_MIN_TM = DT_GetTodouble(dr, "ta_min_tm");
+                            addData.TD_AVG = DT_GetTodouble(dr, "td_avg");
+                            addData.TS_AVG = DT_GetTodouble(dr, "ts_avg");
+                            addData.TG_MIN = DT_GetTodouble(dr, "tg_min");
+                            addData.HM_AVG = DT_GetTodouble(dr, "hm_avg");
+                            addData.HM_MIN = DT_GetTodouble(dr, "hm_min");
+                            addData.HM_MIN_TM = DT_GetTodouble(dr, "hm_min_tm");
+                            addData.PV_AVG = DT_GetTodouble(dr, "pv_avg");
+                            addData.EV_S = DT_GetTodouble(dr, "ev_s");
+                            addData.EV_L = DT_GetTodouble(dr, "ev_l");
+                            addData.FG_DUR = DT_GetTodouble(dr, "fg_dur");
+                            addData.PA_AVG = DT_GetTodouble(dr, "pa_avg");
+                            addData.PS_AVG = DT_GetTodouble(dr, "ps_avg");
+                            addData.PS_MAX = DT_GetTodouble(dr, "ps_max");
+                            addData.PS_MAX_TM = DT_GetTodouble(dr, "ps_max_tm");
+                            addData.PS_MIN = DT_GetTodouble(dr, "ps_min");
+                            addData.PS_MIN_TM = DT_GetTodouble(dr, "ps_min_tm");
+                            addData.CA_TOT = DT_GetTodouble(dr, "ca_tot");
+                            addData.SS_DAY = DT_GetTodouble(dr, "ss_day");
+                            addData.SS_DUR = DT_GetTodouble(dr, "ss_dur");
+                            addData.SS_CMB = DT_GetTodouble(dr, "ss_cmb");
+                            addData.SI_DAY = DT_GetTodouble(dr, "si_day");
+                            addData.SI_60M_MAX = DT_GetTodouble(dr, "si_60m_max");
+                            addData.SI_60M_MAX_TM = DT_GetTodouble(dr, "si_60m_max_tm");
+                            addData.RN_DAY = DT_GetTodouble(dr, "rn_day");
+                            addData.RN_D99 = DT_GetTodouble(dr, "rn_d99");
+                            addData.RN_DUR = DT_GetTodouble(dr, "rn_dur");
+                            addData.RN_60M_MAX = DT_GetTodouble(dr, "rn_60m_max");
+                            addData.RN_60M_MAX_TM = DT_GetTodouble(dr, "rn_60m_max_tm");
+                            addData.RN_10M_MAX = DT_GetTodouble(dr, "rn_10m_max");
+                            addData.RN_10M_MAX_TM = DT_GetTodouble(dr, "rn_10m_max_tm");
+                            addData.RN_POW_MAX = DT_GetTodouble(dr, "rn_pow_max");
+                            addData.RN_POW_MAX_TM = DT_GetTodouble(dr, "rn_pow_max_tm");
+                            addData.SD_NEW = DT_GetTodouble(dr, "sd_new");
+                            addData.SD_NEW_TM = DT_GetTodouble(dr, "sd_new_tm");
+                            addData.SD_MAX = DT_GetTodouble(dr, "sd_max");
+                            addData.SD_MAX_TM = DT_GetTodouble(dr, "sd_max_tm");
+                            addData.TE_05 = DT_GetTodouble(dr, "te_05");
+                            addData.TE_10 = DT_GetTodouble(dr, "te_10");
+                            addData.TE_15 = DT_GetTodouble(dr, "te_15");
+                            addData.TE_30 = DT_GetTodouble(dr, "te_30");
+                            addData.TE_50 = DT_GetTodouble(dr, "te_50");
 
-                        //CookieMon
-
-                        lDBDatas.Add(addData);
+                            lDBDatas.Add(addData);
+                        }
+                        catch (Exception rowEx)
+                        {
+                            GMLogHelper.WriteLog($"행 데이터 처리 중 오류: {rowEx.Message}");
+                            // 단일 행 오류는 건너뛰고 계속 진행
+                            continue;
+                        }
                     }
 
+                    GMLogHelper.WriteLog($"데이터 처리 완료 - 총 {lDBDatas.Count}개 레코드 로드됨");
                     return lDBDatas;
                 }
                 catch (Exception ex)
                 {
                     GMLogHelper.WriteLog(string.Format("StackTrace : {0}", ex.StackTrace));
                     GMLogHelper.WriteLog(string.Format("Message : {0}", ex.Message));
-
+                    GMLogHelper.WriteLog("데이터 조회 중 오류 발생");
                     return null;
                 }
             }
@@ -991,7 +1057,7 @@ namespace OpenAPI.DataServices
 
         #endregion
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+        ///
 
     }
 }
