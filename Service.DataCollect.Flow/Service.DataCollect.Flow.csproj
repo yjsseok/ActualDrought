@@ -154,10 +154,6 @@
       <Project>{212054C1-1053-43EF-87F8-4C7D68457011}</Project>
       <Name>OpenAPI.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Service.JSlogger\Service.JSlogger.csproj">
-      <Project>{34e5ae0f-9bf4-469c-b49a-e50a5f33d93f}</Project>
-      <Name>Service.JSlogger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\UFRI.FramWork\UFRI.FrameWork.csproj">
       <Project>{3105CC22-F652-4581-AC12-AC01507E7D81}</Project>
       <Name>UFRI.FrameWork</Name>

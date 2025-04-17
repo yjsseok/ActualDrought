@@ -53,8 +53,7 @@ namespace OpenAPI.Controls
                     }
                     else
                     {
-                        //////         string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string[] vals = strline.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                         if (vals.Length == 56)
                         {
