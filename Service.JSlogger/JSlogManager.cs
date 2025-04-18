@@ -7,8 +7,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using UFRI.FrameWork;
-
-
 namespace Service.JSlogger
 {
     /// <summary>
