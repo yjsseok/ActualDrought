@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UFRI.FrameWork;
 
+
 namespace OpenAPI.Controls
 {
     public class KMA_Controller
@@ -54,7 +55,18 @@ namespace OpenAPI.Controls
                     else
                     {
                         //////         string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string[] vals = strline.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        ///string[] vals = strline.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] vals;
+                        if (strline.Contains(","))
+                        {
+                            // 쉼표로 구분된 데이터 처리
+                            vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        }
+                        else
+                        {
+                            // 공백으로 구분된 데이터 처리
+                            vals = strline.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        }
 
                         if (vals.Length == 56)
                         {

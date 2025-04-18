@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using UFRI.FrameWork;
 
+
 namespace Service.DataCollect.ASOS
 {
     public partial class frmMain : Form
@@ -635,7 +636,84 @@ namespace Service.DataCollect.ASOS
                 ));
             }
         }
+        public static void CollectRealTimeData(Uri baseUrl, string stn)
+        {
+            try
+            {
+                // 마지막 DB 날짜 가져오기
+                DateTime lastDbDate = NpgSQLService.GetLastDateFromOpenAPI_KMAASOS();
+                GMLogHelper.WriteLog($"마지막 DB 날짜: {lastDbDate.ToString("yyyyMMdd")}");
 
+                // 현재 날짜 가져오기
+                DateTime currentDate = DateTime.Today;
+                GMLogHelper.WriteLog($"현재 날짜: {currentDate.ToString("yyyyMMdd")}");
+
+                // 처리할 날짜 범위 계산
+                int totalDays = (int)(currentDate - lastDbDate).TotalDays;
+                if (totalDays <= 0)
+                {
+                    GMLogHelper.WriteLog("이미 최신 데이터가 있습니다.");
+                    return;
+                }
+
+                GMLogHelper.WriteLog($"처리할 날짜 범위: {lastDbDate.AddDays(1).ToString("yyyyMMdd")} ~ {currentDate.ToString("yyyyMMdd")} ({totalDays}일)");
+
+                // 날짜 범위 처리
+                int processedDays = 0;
+                int successDays = 0;
+
+                // 마지막 DB 날짜의 다음 날부터 현재 날짜까지 반복
+                for (DateTime date = lastDbDate.AddDays(1); date <= currentDate; date = date.AddDays(1))
+                {
+                    string dateStr = date.ToString("yyyyMMdd");
+                    GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터 수집 시작");
+
+                    // 해당 날짜에 대한 데이터 수집
+                    string filePath = KMA_Controller.ExecuteDownloadResponse(baseUrl, dateStr, stn);
+
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        // CSV 파일 처리
+                        List<rcvKMAASOSData> dataList = KMA_Controller.FiletoList_KMAASOS(filePath);
+
+                        // DB에 데이터 삽입
+                        if (dataList.Count > 0)
+                        {
+                            if (NpgSQLService.BulkInsert_KMAASOSDatas(dataList))
+                            {
+                                successDays++;
+                                GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터 수집 및 DB 입력 완료 (데이터 수: {dataList.Count})");
+                            }
+                            else
+                            {
+                                GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터 DB 입력 실패");
+                            }
+                        }
+                        else
+                        {
+                            GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터가 없습니다.");
+                        }
+                    }
+                    else
+                    {
+                        GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터 다운로드 실패");
+                    }
+
+                    processedDays++;
+
+                    // 진행 상황 업데이트
+                    int progressPercentage = (int)((double)processedDays / totalDays * 100);
+                    GMLogHelper.WriteLog($"진행 상황: {processedDays}/{totalDays}일 처리 완료 ({progressPercentage}%)");
+                }
+
+                GMLogHelper.WriteLog($"실시간 데이터 수집 완료: 총 {totalDays}일 중 {successDays}일의 데이터를 DB에 입력했습니다.");
+            }
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog($"데이터 수집 중 오류 발생: {ex.Message}");
+                GMLogHelper.WriteLog($"스택 트레이스: {ex.StackTrace}");
+            }
+        }
         private void EnqueueOpenAPIKMAASOSResult(string filePath)
         {
             try
