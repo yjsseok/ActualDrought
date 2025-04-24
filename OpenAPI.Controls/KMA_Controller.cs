@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UFRI.FrameWork;
 
+
 namespace OpenAPI.Controls
 {
     public class KMA_Controller
@@ -53,7 +54,9 @@ namespace OpenAPI.Controls
                     }
                     else
                     {
-                        string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        //////         string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                  //      string[] vals = strline.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] vals = strline.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                         if (vals.Length == 56)
                         {
@@ -117,6 +120,8 @@ namespace OpenAPI.Controls
                             addData.TE_50 = double.Parse(vals[55].Trim());
 
                             listKMAASOS.Add(addData);
+
+
                         }
                     }
                 }

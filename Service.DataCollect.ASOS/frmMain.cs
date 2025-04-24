@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UFRI.FrameWork;
+
 
 namespace Service.DataCollect.ASOS
 {
@@ -220,6 +222,16 @@ namespace Service.DataCollect.ASOS
         {
             try
             {
+                // 종료 플래그 설정
+                _shouldStop = true;
+
+                // 대기 중인 스레드 깨우기
+                eventWaitHandle.Set();
+
+                Thread.Sleep(5000);
+
+
+
                 // 모든 스레드 종료
                 if (thOpenAPI_KMA_ASOS != null && thOpenAPI_KMA_ASOS.IsAlive)
                 {
@@ -235,6 +247,11 @@ namespace Service.DataCollect.ASOS
                 {
                     thOpenAPI_KMA_ASOS_Result.Abort();
                 }
+
+                thOpenAPI_KMA_ASOS = null;
+                thOpenAPI_KMA_ASOS_Period = null;
+                thOpenAPI_KMA_ASOS_Result = null;
+
 
                 isServiceRunning = false; // 서비스 실행 상태 해제
                 WriteStatus("모든 서비스가 중지되었습니다.");
@@ -277,39 +294,67 @@ namespace Service.DataCollect.ASOS
                 }
             }
         }
-        
-void OpenAPIKMAASOSResultInsertProcess(string resultPath)
+        private void OpenAPIKMAASOSResultInsertProcess(string resultPath)
         {
             try
             {
-                List<rcvKMAASOSData> listKMAASOS = new List<rcvKMAASOSData>();
-                listKMAASOS = KMA_Controller.FiletoList_KMAASOS(resultPath);
+                _logger.Debug($"파일 처리 시작: {resultPath}", "ResultProcess");
+                DateTime processStart = DateTime.Now;
 
+                // 파일명에서 관측소 ID와 날짜 추출
                 string filePathWithoutExt = Path.GetFileNameWithoutExtension(resultPath);
-
-                //파일명에서 정보추출
                 string[] splitedstring = filePathWithoutExt.Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
                 int stdID = int.Parse(splitedstring[1].Trim());
-                DateTime sDate = BizCommon.StringtoDateTimeStart(splitedstring[2].Trim());
-                DateTime eDate = BizCommon.StringtoDateTimeEnd(splitedstring[2].Trim());
+                string fileDate = splitedstring[2].Trim(); // 파일명의 날짜
 
-                //입력 동일기간의 데이터를 Database에서 조회
-                List<rcvKMAASOSData> listKMAASOS_Database = new List<rcvKMAASOSData>();
-                listKMAASOS_Database = NpgSQLService.GetDailyDatas_FromOpenAPI_KMAASOS(stdID, sDate, eDate);
+                // 파일 데이터 읽기
+                List<rcvKMAASOSData> listKMAASOS = KMA_Controller.FiletoList_KMAASOS(resultPath);
+                if (listKMAASOS == null || listKMAASOS.Count == 0)
+                {
+                    _logger.Warning($"파일에서 데이터를 찾을 수 없습니다: {resultPath}", "ResultProcess");
+                    return;
+                }
 
-                //Database와 비교하여 Database에 없는것 입력
-                List<rcvKMAASOSData> addDatas = listKMAASOS.Where(current => !listKMAASOS_Database.Any(db => db.TM == current.TM && db.STN == current.STN)).ToList();
+                _logger.Info($"파일에서 {listKMAASOS.Count}개 데이터 로드 완료", "ResultProcess");
 
-                //Bulk Insert 실행
-                WriteStatus(string.Format("Insert process...{0} ea", addDatas.Count));
+                // 파일명의 날짜를 기준으로 처리
+                DateTime sDate = BizCommon.StringtoDateTimeStart(fileDate);
+                DateTime eDate = BizCommon.StringtoDateTimeEnd(fileDate);
+                _logger.Debug($"파일 정보: 관측소ID={stdID}, 날짜={fileDate}, 처리일자={sDate:yyyy-MM-dd}", "ResultProcess");
+
+                // 해당 날짜의 기존 데이터 조회
+                DateTime dbQueryStart = DateTime.Now;
+                List<rcvKMAASOSData> listKMAASOS_Database = NpgSQLService.GetDailyDatas_FromOpenAPI_KMAASOS(stdID, sDate, eDate);
+                TimeSpan dbQueryDuration = DateTime.Now - dbQueryStart;
+                _logger.LogPerformance("기존 데이터 조회", (long)dbQueryDuration.TotalMilliseconds, "Database");
+                _logger.Debug($"기존 데이터 조회 결과: {listKMAASOS_Database.Count}건", "ResultProcess");
+
+                // 새로운 데이터만 필터링
+                List<rcvKMAASOSData> addDatas = listKMAASOS.Where(current =>
+                    !listKMAASOS_Database.Any(db => db.TM == current.TM && db.STN == current.STN)).ToList();
+                _logger.Info($"날짜 {fileDate}, 새로 추가할 데이터: {addDatas.Count}건", "ResultProcess");
 
                 if (NpgSQLService.BulkInsert_KMAASOSDatas(addDatas) == true)
                 {
-                    WriteStatus(string.Format("Database Insert... {0}:site {1}:Datas Success", stdID, addDatas.Count));
+                    // Bulk Insert 실행
+                    _logger.Info($"데이터베이스에 {addDatas.Count}건 저장 중...", "Database");
+                    DateTime dbInsertStart = DateTime.Now;
+                    bool result = NpgSQLService.BulkInsert_KMAASOSDatas(addDatas);
+                    TimeSpan dbInsertDuration = DateTime.Now - dbInsertStart;
+                    _logger.LogPerformance("데이터베이스 삽입", (long)dbInsertDuration.TotalMilliseconds, "Database");
+
+                    if (result)
+                    {
+                        _logger.Info($"데이터베이스 저장 성공: 날짜={fileDate}, {addDatas.Count}건", "Database");
+                    }
+                    else
+                    {
+                        _logger.Error($"데이터베이스 저장 실패: 날짜={fileDate}, {addDatas.Count}건", "Database");
+                    }
                 }
                 else
                 {
-                    WriteStatus(string.Format("Database Insert... {0}:site {1}:Datas fail", stdID, addDatas.Count));
+                    _logger.Info($"날짜 {fileDate}, 저장할 새로운 데이터가 없습니다.", "ResultProcess");
                 }
             }
             catch (Exception ex)
@@ -318,6 +363,81 @@ void OpenAPIKMAASOSResultInsertProcess(string resultPath)
                 GMLogHelper.WriteLog($"StackTrace: {ex.StackTrace}");
             }
         }
+        //private void OpenAPIKMAASOSResultInsertProcess(string resultPath)
+        //{
+        //    try
+        //    {
+        //        _logger.Debug($"파일 처리 시작: {resultPath}", "ResultProcess");
+        //        DateTime processStart = DateTime.Now;
+
+        //        List<rcvKMAASOSData> listKMAASOS = new List<rcvKMAASOSData>();
+        //        listKMAASOS = KMA_Controller.FiletoList_KMAASOS(resultPath);
+
+        //        if (listKMAASOS == null || listKMAASOS.Count == 0)
+        //        {
+        //            _logger.Warning($"파일에서 데이터를 찾을 수 없습니다: {resultPath}", "ResultProcess");
+        //            return;
+        //        }
+
+        //        _logger.Info($"파일에서 {listKMAASOS.Count}개 데이터 로드 완료", "ResultProcess");
+
+        //        string filePathWithoutExt = Path.GetFileNameWithoutExtension(resultPath);
+        //        //파일명에서 정보추출
+        //        string[] splitedstring = filePathWithoutExt.Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+        //        int stdID = int.Parse(splitedstring[1].Trim());
+        //        DateTime sDate = BizCommon.StringtoDateTimeStart(splitedstring[2].Trim());
+        //        DateTime eDate = BizCommon.StringtoDateTimeEnd(splitedstring[2].Trim());
+
+        //        _logger.Debug($"파일 정보: 관측소ID={stdID}, 시작일={sDate:yyyy-MM-dd}, 종료일={eDate:yyyy-MM-dd}", "ResultProcess");
+
+        //        //입력 동일기간의 데이터를 Database에서 조회
+        //        DateTime dbQueryStart = DateTime.Now;
+        //        List<rcvKMAASOSData> listKMAASOS_Database = new List<rcvKMAASOSData>();
+        //        listKMAASOS_Database = NpgSQLService.GetDailyDatas_FromOpenAPI_KMAASOS(stdID, sDate, eDate);
+        //        TimeSpan dbQueryDuration = DateTime.Now - dbQueryStart;
+
+        //        _logger.LogPerformance("기존 데이터 조회", (long)dbQueryDuration.TotalMilliseconds, "Database");
+        //        _logger.Debug($"기존 데이터 조회 결과: {listKMAASOS_Database.Count}건", "ResultProcess");
+
+        //        //Database와 비교하여 Database에 없는것 입력
+        //        List<rcvKMAASOSData> addDatas = listKMAASOS.Where(current =>
+        //            !listKMAASOS_Database.Any(db => db.TM == current.TM && db.STN == current.STN)).ToList();
+
+        //        _logger.Info($"새로 추가할 데이터: {addDatas.Count}건", "ResultProcess");
+
+        //        if (addDatas.Count > 0)
+        //        {
+        //            //Bulk Insert 실행
+        //            _logger.Info($"데이터베이스에 {addDatas.Count}건 저장 중...", "Database");
+
+        //            DateTime dbInsertStart = DateTime.Now;
+        //            bool result = NpgSQLService.BulkInsert_KMAASOSDatas(addDatas);
+        //            TimeSpan dbInsertDuration = DateTime.Now - dbInsertStart;
+
+        //            _logger.LogPerformance("데이터베이스 삽입", (long)dbInsertDuration.TotalMilliseconds, "Database");
+
+        //            if (result)
+        //            {
+        //                _logger.Info($"데이터베이스 저장 성공: 관측소ID={stdID}, {addDatas.Count}건", "Database");
+        //            }
+        //            else
+        //            {
+        //                _logger.Error($"데이터베이스 저장 실패: 관측소ID={stdID}, {addDatas.Count}건", "Database");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            _logger.Info("저장할 새로운 데이터가 없습니다.", "ResultProcess");
+        //        }
+
+        //        TimeSpan totalDuration = DateTime.Now - processStart;
+        //        _logger.LogPerformance("전체 처리 시간", (long)totalDuration.TotalMilliseconds, "ResultProcess");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogException(ex, "결과 처리 중 오류 발생", LogLevel.Error, "ResultProcess");
+        //    }
+        //}
 
         private void OpenAPI_KMA_ASOS_PeriodCaller()
         {
@@ -459,18 +579,23 @@ void OpenAPIKMAASOSResultInsertProcess(string resultPath)
                     for (DateTime date = lastDate.AddDays(1); date <= today; date = date.AddDays(1))
                     {
                         string tm = date.ToString("yyyyMMdd");
-                        string tm2 = today.ToString("yyyyMMdd");
+                     //   string tm2 = today.ToString("yyyyMMdd");
 
                         WriteStatus(string.Format("{0} 날짜의 데이터 수집 시작", tm));
 
-                        string serviceURL = "https://apihub-pub.kma.go.kr/api/typ01/url/kma_sfcdd3.php?";
+                        string serviceURL = "https://apihub-pub.kma.go.kr/api/typ01/url/kma_sfcdd.php?";
                         string stn = "0";
                         string disp = "1";
                         string help = "0";
                         string authKey = "40cfe353913cd680317889498823f9214c0d7a09e09583a5b09291467c37af3414233051807b848caa2d0162742948c28969c222eb3dcdfc061abea91ac9d60a";
 
-                        Uri uri = new Uri(string.Format("{0}tm={1}&tm2={2}&stn={3}&disp={4}&help={5}&authKey={6}",
-                            serviceURL, tm, tm2, stn, disp, help, authKey));
+                        // API 호출 시작 시간 기록
+                        DateTime apiCallStart = DateTime.Now;
+
+                        //Uri uri = new Uri(string.Format("{0}tm={1}&tm2={2}&stn={3}&disp={4}&help={5}&authKey={6}",
+                        //    serviceURL, tm, tm2, stn, disp, help, authKey));
+                        Uri uri = new Uri(string.Format("{0}tm={1}&stn={2}&disp={3}&help={4}&authKey={5}",
+                    serviceURL, tm, stn, disp, help, authKey));
 
                         string filePath = KMA_Controller.ExecuteDownloadResponse(uri, tm, stn);
 
@@ -513,6 +638,84 @@ void OpenAPIKMAASOSResultInsertProcess(string resultPath)
                 this.Invoke(new Action(() =>
                     MessageBox.Show($"오류 발생: {ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 ));
+            }
+        }
+        public static void CollectRealTimeData(Uri baseUrl, string stn)
+        {
+            try
+            {
+                // 마지막 DB 날짜 가져오기
+                DateTime lastDbDate = NpgSQLService.GetLastDateFromOpenAPI_KMAASOS();
+                GMLogHelper.WriteLog($"마지막 DB 날짜: {lastDbDate.ToString("yyyyMMdd")}");
+
+                // 현재 날짜 가져오기
+                DateTime currentDate = DateTime.Today;
+                GMLogHelper.WriteLog($"현재 날짜: {currentDate.ToString("yyyyMMdd")}");
+
+                // 처리할 날짜 범위 계산
+                int totalDays = (int)(currentDate - lastDbDate).TotalDays;
+                if (totalDays <= 0)
+                {
+                    GMLogHelper.WriteLog("이미 최신 데이터가 있습니다.");
+                    return;
+                }
+
+                GMLogHelper.WriteLog($"처리할 날짜 범위: {lastDbDate.AddDays(1).ToString("yyyyMMdd")} ~ {currentDate.ToString("yyyyMMdd")} ({totalDays}일)");
+
+                // 날짜 범위 처리
+                int processedDays = 0;
+                int successDays = 0;
+
+                // 마지막 DB 날짜의 다음 날부터 현재 날짜까지 반복
+                for (DateTime date = lastDbDate.AddDays(1); date <= currentDate; date = date.AddDays(1))
+                {
+                    string dateStr = date.ToString("yyyyMMdd");
+                    GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터 수집 시작");
+
+                    // 해당 날짜에 대한 데이터 수집
+                    string filePath = KMA_Controller.ExecuteDownloadResponse(baseUrl, dateStr, stn);
+
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        // CSV 파일 처리
+                        List<rcvKMAASOSData> dataList = KMA_Controller.FiletoList_KMAASOS(filePath);
+
+                        // DB에 데이터 삽입
+                        if (dataList.Count > 0)
+                        {
+                            if (NpgSQLService.BulkInsert_KMAASOSDatas(dataList))
+                            {
+                                successDays++;
+                                GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터 수집 및 DB 입력 완료 (데이터 수: {dataList.Count})");
+                            }
+                            else
+                            {
+                                GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터 DB 입력 실패");
+                            }
+                        }
+                        else
+                        {
+                            GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터가 없습니다.");
+                        }
+                    }
+                    else
+                    {
+                        GMLogHelper.WriteLog($"{dateStr} 날짜의 데이터 다운로드 실패");
+                    }
+
+                    processedDays++;
+
+                    // 진행 상황 업데이트
+                    int progressPercentage = (int)((double)processedDays / totalDays * 100);
+                    GMLogHelper.WriteLog($"진행 상황: {processedDays}/{totalDays}일 처리 완료 ({progressPercentage}%)");
+                }
+
+                GMLogHelper.WriteLog($"실시간 데이터 수집 완료: 총 {totalDays}일 중 {successDays}일의 데이터를 DB에 입력했습니다.");
+            }
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog($"데이터 수집 중 오류 발생: {ex.Message}");
+                GMLogHelper.WriteLog($"스택 트레이스: {ex.StackTrace}");
             }
         }
         private void EnqueueOpenAPIKMAASOSResult(string filePath)
@@ -561,7 +764,7 @@ void OpenAPIKMAASOSResultInsertProcess(string resultPath)
                 listStatus.Items.Add("표시할 데이터가 없습니다.");
             }
         }
-        #endregion
+        #endregion HEAD
 
         #region [메뉴]
         //private void periodSettingToolStripMenuItem_Click(object sender, EventArgs e)
@@ -691,4 +894,5 @@ void OpenAPIKMAASOSResultInsertProcess(string resultPath)
 
         }
     }
+        
 }
