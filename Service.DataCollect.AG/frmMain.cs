@@ -75,7 +75,6 @@ namespace Service.DataCollect.AG
         private void InitializeVariables()
         {
             this.isServiceRunning = false;
-            _global.RealTimeUse = BizCommon.BoolConvert(Config.RealTimeUse);
             _global.PeriodUse = BizCommon.BoolConvert(Config.PeriodUse);
             _global.startDate = new DateTime(Config.StartDate, 1, 1);
             _global.endDate = new DateTime(Config.EndDate, 12, 31);
@@ -168,7 +167,7 @@ namespace Service.DataCollect.AG
         private void OpenAPI_AG_tb_reserviorlevel_AutoCaller()
         {
             // 설정된 시간 간격으로 호출 (초 단위)
-            int nTimeGap = 100 * Config.AG_tb_reserviorlevel_Auto_Caller_Second;
+            int nTimeGap = 1000 * Config.AG_tb_reserviorlevel_Auto_Caller_Second;
             _logger.Info($"실시간 데이터 수집 간격: {Config.AG_tb_reserviorlevel_Auto_Caller_Second}초", "AutoCaller");
 
             deleOpenAPI_AG_tb_reserviorlevel_Caller deleMethod = new deleOpenAPI_AG_tb_reserviorlevel_Caller(this.OpenAPI_AG_tb_reserviorlevel_Service);
@@ -435,16 +434,17 @@ namespace Service.DataCollect.AG
 
                 // API URL 및 키 설정
                 string apiUrl = "http://apis.data.go.kr/B552149/reserviorWaterLevel/reservoirlevel/";
-                //  string apiKey = "FpAShNYZTSjw5iNsUwVK867BWOExI9aW6YstOhSMmgEEquLAatpmvK9ZvuqaKJsKY%2BVAuuSlChy%2BP2xhEYDq6g%3D%3D";
+        //        string apiKey = "FpAShNYZTSjw5iNsUwVK867BWOExI9aW6YstOhSMmgEEquLAatpmvK9ZvuqaKJsKY%2BVAuuSlChy%2BP2xhEYDq6g%3D%3D";
+           
+                string apiKey = "twmcFC573zbkqrRUA%2BFaZiry4YSubsQGruB02GpMgc%2BMjbR8NGIKMR8yBPMzpIjwvTajJYsn3OJkb0DF6ERunw%3D%3D";
+        //        string apiKey = "TSuYnoFvXeiYo14wN2fk8Kyk%2F5jNUyPZ%2F47AM89XIslpdAR%2FMc1OwpiCsYILkD7mSSDfVUPQxGWYXofSuuXPPw%3D%3D";
+        //        string apiKey = "TeSSIf1TYsuPoXt3gW4TDbqjfzc % 2BkSCD3bFhjHgfPzK9JGkaRBHVSRSIM378w % 2Fgi7d9tJ28xK4dx7lgdUqAgug % 3D % 3D";
+        //        string apiKey = "Dmja4F % 2FdbdoCx8oq8ys4irj7IOSs6xYv3Ac3no31WAwWyMc % 2F0Gs25VFDG7NKNviyhGK24do % 2F % 2BeH5bBlMwDEj % 2Bw % 3D % 3D";
 
-                // string apiKey ="TeSSIf1TYsuPoXt3gW4TDbqjfzc%2BkSCD3bFhjHgfPzK9JGkaRBHVSRSIM378w%2Fgi7d9tJ28xK4dx7lgdUqAgug%3D%3D";
-                string apiKey = "wN6RP5501Yw906BlOATGKtRPe2m9kwzOoqlUkaiG0fYEkWQthjBFEJ5kCPNeFm%2B2588z%2FJHrpDS%2FJKnvEeLhRQ%3D%3D";
 
 
-
-
-                // pageNo=1&numOfRows=1000 파라미터 추가
-                string requestUrl = $"{apiUrl}?serviceKey={apiKey}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
+              // pageNo=1&numOfRows=1000 파라미터 추가
+              string requestUrl = $"{apiUrl}?serviceKey={apiKey}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
 
                 _logger.Debug($"API 요청 URL: {requestUrl}", "API");
 
