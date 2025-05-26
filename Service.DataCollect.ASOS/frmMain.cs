@@ -191,7 +191,7 @@ namespace Service.DataCollect.ASOS
             try
             {
                 #region [기상청 자료수집 구동]
-                if (_global.RealTimeUse == true)
+                if (_global.RealTimeUse == true && _global.PeriodUse == false)
                 {
                     _logger.Info("실시간 데이터 수집 스레드 시작", "Thread");
                     thOpenAPI_KMA_ASOS = new Thread(OpenAPI_KMA_ASOS_AutoCaller)
@@ -203,7 +203,7 @@ namespace Service.DataCollect.ASOS
                 #endregion
 
                 #region [기상청 자료수집 기간]
-                if (_global.PeriodUse == true)
+                if (_global.PeriodUse == true )
                 {
                     _logger.Info("기간 데이터 수집 스레드 시작", "Thread");
                     thOpenAPI_KMA_ASOS_Period = new Thread(OpenAPI_KMA_ASOS_PeriodCaller)

@@ -14,24 +14,25 @@ namespace OpenAPI.Controls
     {
         public static string ExecuteDownloadResponse(Uri baseUrl, string tm, string stn)
         {
-			try
-			{
-				string fileName = string.Format("ASOSday_{0}_{1}.csv", stn, tm);
-                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Download", fileName);
+            string fileName = string.Format("ASOSday_{0}_{1}.csv", stn, tm);
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Download", fileName);
 
+            try
+            {
                 using (WebClient client = new WebClient())
-                { // WebClient 인스턴스 생성
-                    client.DownloadFile(baseUrl, filePath); // URL에서 파일 다운로드
+                {
+                    client.DownloadFile(baseUrl, filePath);
                 }
-
                 return filePath;
             }
-			catch (Exception ex)
-			{
-                GMLogHelper.WriteLog(string.Format("StackTrace : {0}", ex.StackTrace));
-                GMLogHelper.WriteLog(string.Format("Message : {0}", ex.Message));
-
-                return string.Empty;
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog($"[ERROR] WebClient 예외: {ex.Message}");
+                GMLogHelper.WriteLog($"[ERROR] 요청 URL: {baseUrl}");
+                GMLogHelper.WriteLog($"[ERROR] 저장 경로: {filePath}");
+                if (ex.InnerException != null)
+                    GMLogHelper.WriteLog($"[ERROR] InnerException: {ex.InnerException.Message}");
+                throw;
             }
         }
 
@@ -53,7 +54,7 @@ namespace OpenAPI.Controls
                     }
                     else
                     {
-                        //////         string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                   //////         string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                   //      string[] vals = strline.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         string[] vals = strline.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 

@@ -203,9 +203,9 @@ namespace Service.DataCollect.Dam
             try
             {
                 _logger.Info("서비스 시작 중...", "Service");
-
+               
                 // WAMIS 실시간 데이터 수집 스레드
-                if (_global.RealTimeUse == true)
+                if (_global.RealTimeUse == true && _global.PeriodUse != true)
                 {
                     _logger.Info("실시간 데이터 수집 스레드 시작", "Thread");
                     thOpenAPI_WAMIS_mnhrdata = new Thread(OpenAPI_Wamis_mndtdata_AutoCaller)
@@ -285,7 +285,7 @@ namespace Service.DataCollect.Dam
                 else
                 {
                     // 마지막 데이터 다음날부터 시작
-                    startDate = lastDate.AddDays(1);
+                    startDate = lastDate.AddDays(0);
                     // 마지막 데이터 다음날이 오늘보다 늦은 경우 작업 취소
                     if (startDate > DateTime.Now)
                     {

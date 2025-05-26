@@ -165,7 +165,8 @@ namespace OpenAPI.DataServices
             try
             {
                 StringBuilder query = new StringBuilder();
-                query.Append("INSERT INTO drought.tb_kma_asos_dtdata(tm, stn, ws_avg, wr_day, wd_max, ws_max, ws_max_tm, wd_ins, ws_ins, ws_ins_tm, ta_avg, ta_max, ta_max_tm, ta_min, ta_min_tm, td_avg, ts_avg, tg_min, hm_avg, hm_min, hm_min_tm, pv_avg, ev_s, ev_l, fg_dur, pa_avg, ps_avg, ps_max, ps_max_tm, ps_min, ps_min_tm, ca_tot, ss_day, ss_dur, ss_cmb, si_day, si_60m_max, si_60m_max_tm, rn_day, rn_d99, rn_dur, rn_60m_max, rn_60m_max_tm, rn_10m_max, rn_10m_max_tm, rn_pow_max, rn_pow_max_tm, sd_new, sd_new_tm, sd_max, sd_max_tm, te_05, te_10, te_15, te_30, te_50) VALUES ");
+                query.Append("INSERT INTO drought.tb_kma_asos_dtdata(" +
+                    "tm, stn, ws_avg, wr_day, wd_max, ws_max, ws_max_tm, wd_ins, ws_ins, ws_ins_tm, ta_avg, ta_max, ta_max_tm, ta_min, ta_min_tm, td_avg, ts_avg, tg_min, hm_avg, hm_min, hm_min_tm, pv_avg, ev_s, ev_l, fg_dur, pa_avg, ps_avg, ps_max, ps_max_tm, ps_min, ps_min_tm, ca_tot, ss_day, ss_dur, ss_cmb, si_day, si_60m_max, si_60m_max_tm, rn_day, rn_d99, rn_dur, rn_60m_max, rn_60m_max_tm, rn_10m_max, rn_10m_max_tm, rn_pow_max, rn_pow_max_tm, sd_new, sd_new_tm, sd_max, sd_max_tm, te_05, te_10, te_15, te_30, te_50) VALUES ");
 
                 int i = 0;
                 foreach (rcvKMAASOSData asos in lKMAASOSDatas)
@@ -185,20 +186,76 @@ namespace OpenAPI.DataServices
                     i++;
                 }
 
+                // ON CONFLICT 구문 추가 (tm, stn이 유니크 키라고 가정)
+                query.Append(" ON CONFLICT (tm, stn) DO UPDATE SET " +
+                    "ws_avg = EXCLUDED.ws_avg, wr_day = EXCLUDED.wr_day, wd_max = EXCLUDED.wd_max, ws_max = EXCLUDED.ws_max, ws_max_tm = EXCLUDED.ws_max_tm, " +
+                    "wd_ins = EXCLUDED.wd_ins, ws_ins = EXCLUDED.ws_ins, ws_ins_tm = EXCLUDED.ws_ins_tm, ta_avg = EXCLUDED.ta_avg, ta_max = EXCLUDED.ta_max, " +
+                    "ta_max_tm = EXCLUDED.ta_max_tm, ta_min = EXCLUDED.ta_min, ta_min_tm = EXCLUDED.ta_min_tm, td_avg = EXCLUDED.td_avg, ts_avg = EXCLUDED.ts_avg, " +
+                    "tg_min = EXCLUDED.tg_min, hm_avg = EXCLUDED.hm_avg, hm_min = EXCLUDED.hm_min, hm_min_tm = EXCLUDED.hm_min_tm, pv_avg = EXCLUDED.pv_avg, " +
+                    "ev_s = EXCLUDED.ev_s, ev_l = EXCLUDED.ev_l, fg_dur = EXCLUDED.fg_dur, pa_avg = EXCLUDED.pa_avg, ps_avg = EXCLUDED.ps_avg, ps_max = EXCLUDED.ps_max, " +
+                    "ps_max_tm = EXCLUDED.ps_max_tm, ps_min = EXCLUDED.ps_min, ps_min_tm = EXCLUDED.ps_min_tm, ca_tot = EXCLUDED.ca_tot, ss_day = EXCLUDED.ss_day, " +
+                    "ss_dur = EXCLUDED.ss_dur, ss_cmb = EXCLUDED.ss_cmb, si_day = EXCLUDED.si_day, si_60m_max = EXCLUDED.si_60m_max, si_60m_max_tm = EXCLUDED.si_60m_max_tm, " +
+                    "rn_day = EXCLUDED.rn_day, rn_d99 = EXCLUDED.rn_d99, rn_dur = EXCLUDED.rn_dur, rn_60m_max = EXCLUDED.rn_60m_max, rn_60m_max_tm = EXCLUDED.rn_60m_max_tm, " +
+                    "rn_10m_max = EXCLUDED.rn_10m_max, rn_10m_max_tm = EXCLUDED.rn_10m_max_tm, rn_pow_max = EXCLUDED.rn_pow_max, rn_pow_max_tm = EXCLUDED.rn_pow_max_tm, " +
+                    "sd_new = EXCLUDED.sd_new, sd_new_tm = EXCLUDED.sd_new_tm, sd_max = EXCLUDED.sd_max, sd_max_tm = EXCLUDED.sd_max_tm, te_05 = EXCLUDED.te_05, " +
+                    "te_10 = EXCLUDED.te_10, te_15 = EXCLUDED.te_15, te_30 = EXCLUDED.te_30, te_50 = EXCLUDED.te_50");
+
                 using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
                 {
                     conn.Open();
                     var command = new NpgsqlCommand(query.ToString(), conn);
                     command.ExecuteNonQuery();
-
                     return true;
                 }
             }
+            /*
+                     public static bool BulkInsert_KMAASOSDatas(List<rcvKMAASOSData> lKMAASOSDatas)
+                    {
+                        string strConn = GetConnectionString();
+
+                        try
+                        {
+                            StringBuilder query = new StringBuilder();
+                            query.Append("INSERT INTO drought.tb_kma_asos_dtdata(tm, stn, ws_avg, wr_day, wd_max, ws_max, ws_max_tm, wd_ins, ws_ins, ws_ins_tm, ta_avg, ta_max, ta_max_tm, ta_min, ta_min_tm, td_avg, ts_avg, tg_min, hm_avg, hm_min, hm_min_tm, pv_avg, ev_s, ev_l, fg_dur, pa_avg, ps_avg, ps_max, ps_max_tm, ps_min, ps_min_tm, ca_tot, ss_day, ss_dur, ss_cmb, si_day, si_60m_max, si_60m_max_tm, rn_day, rn_d99, rn_dur, rn_60m_max, rn_60m_max_tm, rn_10m_max, rn_10m_max_tm, rn_pow_max, rn_pow_max_tm, sd_new, sd_new_tm, sd_max, sd_max_tm, te_05, te_10, te_15, te_30, te_50) VALUES ");
+
+                            int i = 0;
+                            foreach (rcvKMAASOSData asos in lKMAASOSDatas)
+                            {
+                                if (i != 0)
+                                {
+                                    query.Append(" , ");
+                                }
+
+                                query.Append(string.Format("('{0}', {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15}, {16}, {17}, {18}, {19}, {20}, {21}, {22}, {23}, {24}, {25}, {26}, {27}, {28}, {29}, {30}, {31}, {32}, {33}, {34}, {35}, {36}, {37}, {38}, {39}, {40}, {41}, {42}, {43}, {44}, {45}, {46}, {47}, {48}, {49}, {50}, {51}, {52}, {53}, {54}, {55})"
+                                    , asos.TM, asos.STN, asos.WS_AVG, asos.WR_DAY, asos.WD_MAX, asos.WS_MAX, asos.WS_MAX_TM, asos.WD_INS, asos.WS_INS, asos.WS_INS_TM, asos.TA_AVG, asos.TA_MAX
+                                    , asos.TA_MAX_TM, asos.TA_MIN, asos.TA_MIN_TM, asos.TD_AVG, asos.TS_AVG, asos.TG_MIN, asos.HM_AVG, asos.HM_MIN, asos.HM_MIN_TM, asos.PV_AVG, asos.EV_S
+                                    , asos.EV_L, asos.FG_DUR, asos.PA_AVG, asos.PS_AVG, asos.PS_MAX, asos.PS_MAX_TM, asos.PS_MIN, asos.PS_MIN_TM, asos.CA_TOT, asos.SS_DAY, asos.SS_DUR
+                                    , asos.SS_CMB, asos.SI_DAY, asos.SI_60M_MAX, asos.SI_60M_MAX_TM, asos.RN_DAY, asos.RN_D99, asos.RN_DUR, asos.RN_60M_MAX, asos.RN_60M_MAX_TM, asos.RN_10M_MAX
+                                    , asos.RN_10M_MAX_TM, asos.RN_POW_MAX, asos.RN_POW_MAX_TM, asos.SD_NEW, asos.SD_NEW_TM, asos.SD_MAX, asos.SD_MAX_TM, asos.TE_05, asos.TE_10, asos.TE_15, asos.TE_30, asos.TE_50));
+
+                                i++;
+                            }
+
+                            using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
+                            {
+                                conn.Open();
+                                var command = new NpgsqlCommand(query.ToString(), conn);
+                                command.ExecuteNonQuery();
+
+                                return true;
+                            }
+                        }
+
+
+             */
+
             catch (Exception ex)
             {
                 GMLogHelper.WriteLog(ex.StackTrace);
                 GMLogHelper.WriteLog(ex.Message);
-
+                GMLogHelper.WriteLog($"[ERROR] [ASOS] [Database] BulkInsert_KMAASOSDatas 예외: {ex.Message}");
+                if (ex.InnerException != null)
+                    GMLogHelper.WriteLog($"[ERROR] [ASOS] [Database] InnerException: {ex.InnerException.Message}");
                 return false;
             }
         }
