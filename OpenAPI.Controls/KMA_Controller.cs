@@ -21,8 +21,8 @@ namespace OpenAPI.Controls
                 string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Download", fileName);
 
                 using (WebClient client = new WebClient())
-                { // WebClient 인스턴스 생성
-                    client.DownloadFile(baseUrl, filePath); // URL에서 파일 다운로드
+                { 
+                    client.DownloadFile(baseUrl, filePath); 
                 }
 
                 return filePath;
@@ -54,8 +54,7 @@ namespace OpenAPI.Controls
                     }
                     else
                     {
-                        //////         string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        string[] vals = strline.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] vals = strline.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                         if (vals.Length == 56)
                         {

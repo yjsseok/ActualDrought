@@ -2,7 +2,6 @@
 using OpenAPI.Controls;
 using OpenAPI.DataServices;
 using OpenAPI.Model;
-//using Service.DataCollect.Common;
 using Service.JSlogger;
 using System;
 using System.Collections.Generic;
@@ -19,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using UFRI.FrameWork;
+using UFRI.FramWork;
 
 namespace Service.DataCollect.AG
 {
@@ -59,10 +59,8 @@ namespace Service.DataCollect.AG
             _logger = LogManager.GetInstance();
             _logger.Initialize(listStatus, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "l4n.xml"), "AG");
             _logger.Info("애플리케이션 시작", "System");
-
-            InitializeLogNBuild();
+;
             InitializeVariables();
-            InitializeSites();
 
             if (InitializeDatabase())
             {
@@ -74,11 +72,7 @@ namespace Service.DataCollect.AG
             }
         }
 
-        private void InitializeLogNBuild()
-        {
-            // 로그 설정 및 버전 표시 로직
-            _logger.Info($"버전: {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}", "System");
-        }
+
 
         private void InitializeVariables()
         {
@@ -92,13 +86,6 @@ namespace Service.DataCollect.AG
             _logger.Debug($"기간 사용: {_global.PeriodUse}, 시작일: {_global.startDate:yyyy-MM-dd}, 종료일: {_global.endDate:yyyy-MM-dd}", "Config");
         }
 
-        private void InitializeSites()
-        {
-            // 농업용 저수지 사이트 초기화 로직
-            _logger.Info("사이트 정보 초기화 중...", "Initialize");
-            // 여기에 사이트 초기화 코드 추가
-            _logger.Info("사이트 정보 초기화 완료", "Initialize");
-        }
 
         private bool InitializeDatabase()
         {
@@ -114,8 +101,7 @@ namespace Service.DataCollect.AG
 
             try
             {
-                string strConn = String.Format("Server={0};Port={1};User Id={2};Password={3};Database={4};",
-                    dbIP, dbPort, dbId, Config.dbPassword, dbName);
+                string strConn = $"Server={dbIP};Port={dbPort};User Id={dbId};Password={Config.dbPassword};Database={dbName};";
 
                 using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
                 {
@@ -176,7 +162,7 @@ namespace Service.DataCollect.AG
         {
             try
             {
-                if (_global.RealTimeUse == true)
+                if (_global.RealTimeUse)
                 {
                     _logger.Info("실시간 데이터 수집 스레드 시작", "Thread");
                     thOpenAPI_AG_tb_reserviorlevel = new Thread(OpenAPI_AG_tb_reserviorlevel_AutoCaller)
@@ -215,8 +201,7 @@ namespace Service.DataCollect.AG
 
         private void OpenAPI_AG_tb_reserviorlevel_AutoCaller()
         {
-            // 설정된 시간 간격으로 호출 (초 단위)
-            int nTimeGap = 100 * Config.AG_tb_reserviorlevel_Auto_Caller_Second;
+            int nTimeGap = 1000 * Config.AG_tb_reserviorlevel_Auto_Caller_Second;
             _logger.Info($"실시간 데이터 수집 간격: {Config.AG_tb_reserviorlevel_Auto_Caller_Second}초", "AutoCaller");
 
             deleOpenAPI_AG_tb_reserviorlevel_Caller deleMethod = new deleOpenAPI_AG_tb_reserviorlevel_Caller(this.OpenAPI_AG_tb_reserviorlevel_Service);
@@ -273,14 +258,12 @@ namespace Service.DataCollect.AG
                         {
                             _logger.Info($"[{dam.facName}] 저수지 데이터 조회 중... ({startDate:yyyy-MM-dd} ~ {today:yyyy-MM-dd})", "API");
 
-                            // API 호출 시작 시간 기록
                             DateTime apiCallStart = DateTime.Now;
 
                             // API 호출하여 데이터 가져오기 - 기간 전체를 한 번에 요청
                             List<ReservoirLevelData> data = GetReservoirDataAsync(dam.facCode, startDate, today).Result;
 
-                            // API 호출 소요 시간 계산
-                            TimeSpan apiCallDuration = DateTime.Now - apiCallStart;
+                            TimeSpan apiCallDuration = DateTime.Now - apiCallStart; //호출 소요시간 축정
                             _logger.LogPerformance($"[{dam.facName}] API 호출", (long)apiCallDuration.TotalMilliseconds);
 
                             if (data != null && data.Count > 0)
@@ -478,22 +461,19 @@ namespace Service.DataCollect.AG
             List<ReservoirLevelData> result = new List<ReservoirLevelData>();
             try
             {
-                string formattedStartDate = startDate.ToString("yyyyMMdd");
+                string formattedStartDate = startDate.AddDays(-1).ToString("yyyyMMdd");
+                //string formattedStartDate = startDate.ToString("yyyyMMdd");
                 string formattedEndDate = endDate.ToString("yyyyMMdd");
 
                 // API URL 및 키 설정
-                string apiUrl = "http://apis.data.go.kr/B552149/reserviorWaterLevel/reservoirlevel/";
-                string apiKey = "FpAShNYZTSjw5iNsUwVK867BWOExI9aW6YstOhSMmgEEquLAatpmvK9ZvuqaKJsKY%2BVAuuSlChy%2BP2xhEYDq6g%3D%3D";
-           
-         //       string apiKey = "twmcFC573zbkqrRUA%2BFaZiry4YSubsQGruB02GpMgc%2BMjbR8NGIKMR8yBPMzpIjwvTajJYsn3OJkb0DF6ERunw%3D%3D";
-        //        string apiKey = "TSuYnoFvXeiYo14wN2fk8Kyk%2F5jNUyPZ%2F47AM89XIslpdAR%2FMc1OwpiCsYILkD7mSSDfVUPQxGWYXofSuuXPPw%3D%3D";
-        //        string apiKey = "TeSSIf1TYsuPoXt3gW4TDbqjfzc % 2BkSCD3bFhjHgfPzK9JGkaRBHVSRSIM378w % 2Fgi7d9tJ28xK4dx7lgdUqAgug % 3D % 3D";
-        //        string apiKey = "Dmja4F % 2FdbdoCx8oq8ys4irj7IOSs6xYv3Ac3no31WAwWyMc % 2F0Gs25VFDG7NKNviyhGK24do % 2F % 2BeH5bBlMwDEj % 2Bw % 3D % 3D";
+                string apiUrl = "http://apis.data.go.kr/B552149/reserviorWaterLevel/reservoirlevel/"; 
+                string ApiKey1 = Config.ApiKey1; // 1~3 중 한개 사용
+                //string apiKey = "FpAShNYZTSjw5iNsUwVK867BWOExI9aW6YstOhSMmgEEquLAatpmvK9ZvuqaKJsKY%2BVAuuSlChy%2BP2xhEYDq6g%3D%3D";
+                //string apiKey = "wN6RP5501Yw906BlOATGKtRPe2m9kwzOoqlUkaiG0fYEkWQthjBFEJ5kCPNeFm%2B2588z%2FJHrpDS%2FJKnvEeLhRQ%3D%3D"; //보조용(목)
+                //string apiKey = "TeSSIf1TYsuPoXt3gW4TDbqjfzc%2BkSCD3bFhjHgfPzK9JGkaRBHVSRSIM378w%2Fgi7d9tJ28xK4dx7lgdUqAgug%3D%3D"; //보조용(주)
 
 
-
-              // pageNo=1&numOfRows=1000 파라미터 추가
-              string requestUrl = $"{apiUrl}?serviceKey={apiKey}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
+                string requestUrl = $"{apiUrl}?serviceKey={Config.ApiKey1}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
 
                 _logger.Debug($"API 요청 URL: {requestUrl}", "API");
 
@@ -511,8 +491,14 @@ namespace Service.DataCollect.AG
 
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(xmlResponse);
-
-                    // 데이터 항목 추출
+                    XmlNode authMsgNode = xmlDoc.SelectSingleNode("/response/header/returnAuthMsg");
+                    XmlNode reasonCodeNode = xmlDoc.SelectSingleNode("/response/header/returnReasonCode");
+                    if (authMsgNode != null || reasonCodeNode != null)
+                    {
+                        string msg = $"API 응답 에러: returnAuthMsg={authMsgNode?.InnerText}, returnReasonCode={reasonCodeNode?.InnerText}, damCode={damCode}, 기간={formattedStartDate}~{formattedEndDate}";
+                        _logger.Warning(msg, "API");
+                    }
+                  
                     XmlNodeList itemNodes = xmlDoc.SelectNodes("//item");
 
                     if (itemNodes != null && itemNodes.Count > 0)

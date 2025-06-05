@@ -134,7 +134,7 @@ namespace UFRI.FrameWork
             get { return GMConvert.ToInt32(ConfigurationManager.AppSettings["AG_tb_reserviorlevel_Auto_Caller_Second"]); }
         }
 
-
+        public static string ApiKey1 => ConfigurationManager.AppSettings["ApiKey1"];
 
         public static string RealTimeUse
         {
@@ -156,6 +156,7 @@ namespace UFRI.FrameWork
             get { return GMConvert.ToInt32(ConfigurationManager.AppSettings["EndDate"]); }
         }
         #endregion
+
 
     }
 }
