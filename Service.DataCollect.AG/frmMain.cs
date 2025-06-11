@@ -240,6 +240,8 @@ namespace Service.DataCollect.AG
             {
                 _logger.Info("농업용 저수지 실시간 데이터 수집 모듈 시작", "Service");
 
+                AgriDamController controller = new AgriDamController();
+
                 // DB에서 최종 데이터 일자 조회
                 DateTime lastDate = NpgSQLService.GetLastDateFromOpenAPI_AG_tb_reserviorlevel();
                 DateTime today = DateTime.Today;
@@ -279,7 +281,7 @@ namespace Service.DataCollect.AG
                             DateTime apiCallStart = DateTime.Now;
 
                             // API 호출하여 데이터 가져오기 - 기간 전체를 한 번에 요청
-                            List<ReservoirLevelData> data = GetReservoirDataAsync(dam.facCode, startDate, today).Result;
+                            List<ReservoirLevelData> data = controller.GetReservoirDataAsync(dam.facCode, startDate, today).Result;
 
                             TimeSpan apiCallDuration = DateTime.Now - apiCallStart; //호출 소요시간 축정
                             _logger.LogPerformance($"[{dam.facName}] API 호출", (long)apiCallDuration.TotalMilliseconds);
@@ -405,6 +407,7 @@ namespace Service.DataCollect.AG
             try
             {
                 // 농업용 저수지 정보 가져오기
+                AgriDamController controller = new AgriDamController();
                 List<AgriDamSpec> listAgriDam = NpgSQLService.Get_AgriDamSpec();
 
                 if (listAgriDam != null && listAgriDam.Count > 0)
@@ -426,7 +429,7 @@ namespace Service.DataCollect.AG
                             DateTime apiCallStart = DateTime.Now;
 
                             // API 호출하여 데이터 가져오기
-                            List<ReservoirLevelData> data = await GetReservoirDataAsync(dam.facCode, startDate, endDate);
+                            List<ReservoirLevelData> data = await controller.GetReservoirDataAsync(dam.facCode, startDate, endDate);
 
                             // API 호출 소요 시간 계산
                             TimeSpan apiCallDuration = DateTime.Now - apiCallStart;
