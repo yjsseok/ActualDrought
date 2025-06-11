@@ -14,9 +14,10 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using UFRI.FrameWork;
+using System.Threading.Tasks;
+
 
 namespace Service.DataCollect.ASOS
 {
@@ -51,7 +52,6 @@ namespace Service.DataCollect.ASOS
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            // 로그 관리자 초기화
             _logger = LogManager.GetInstance();
             _logger.Initialize(listStatus, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "l4n.xml"), "ASOS");
             _logger.Info("애플리케이션 시작", "System");
@@ -68,7 +68,6 @@ namespace Service.DataCollect.ASOS
                 _logger.Error("데이터베이스 연결 실패", "Database");
                 MessageBox.Show("데이터베이스 연결에 실패했습니다. 설정을 확인해주세요.", "초기화 오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
             // 리스트박스 상태 확인
             CheckListBoxEmpty();
         }
@@ -101,33 +100,24 @@ namespace Service.DataCollect.ASOS
 
         private bool InitializeDatabase()
         {
-            string dbIP = Config.dbIP;
-            string dbName = Config.dbName;
-            string dbPort = Config.dbPort;
-            string dbId = Config.dbId;
-            string dbPassword = Config.dbPassword;
-
-            _logger.Debug($"DB 연결 정보: IP={dbIP}, DB={dbName}, Port={dbPort}, ID={dbId}", "Database");
-
-            if (PostgreConnectionDB(dbIP, dbName, dbPort, dbId, dbPassword) == true)
+            if (PostgreConnectionDB())
             {
-                _logger.Info("데이터베이스 연결 성공", "Database");
+                _logger.Info(" Initialize데이터베이스 연결 성공", "Database");
                 return true;
             }
             else
             {
-                _logger.Error("데이터베이스 연결 실패", "Database");
+                _logger.Error(" Initialize데이터베이스 연결 실패", "Database");
                 return false;
             }
         }
 
-        private bool PostgreConnectionDB(string dbIP, string dbName, string dbPort, string dbId, string dbPassword)
+        private bool PostgreConnectionDB()
         {
             try
             {
-                string strConn = String.Format("Server={0};Port={1};User Id={2};Password={3};Database={4};",
-                    dbIP, dbPort, dbId, dbPassword, dbName);
-
+                string strConn = $"Server={Config.dbIP};Port={Config.dbPort};User Id={Config.dbId};Password={Config.dbPassword};Database={Config.dbName};";
+                _logger.Debug($"DB 연결 정보: IP={Config.dbIP}, DB={Config.dbName}, Port={Config.dbPort}, ID={Config.dbId}", "Database");
                 _logger.Debug("데이터베이스 연결 시도 중...", "Database");
 
                 using (NpgsqlConnection NpgSQLconn = new NpgsqlConnection(strConn))
@@ -200,7 +190,7 @@ namespace Service.DataCollect.ASOS
                     };
                     thOpenAPI_KMA_ASOS.Start();
                 }
-                #endregion
+                #endregion  
 
                 #region [기상청 자료수집 기간]
                 if (_global.PeriodUse == true)
@@ -296,7 +286,6 @@ namespace Service.DataCollect.ASOS
                     if (OpenAPI_KMA_ASOS_ResultQueue.Count > 0)
                     {
                         resultPath = OpenAPI_KMA_ASOS_ResultQueue.Dequeue();
-                        // If file name is null then stop worker thread
                         if (resultPath == string.Empty) return;
                     }
                 }
@@ -387,89 +376,12 @@ namespace Service.DataCollect.ASOS
                 _logger.LogException(ex, "결과 처리 중 오류 발생", LogLevel.Error, "ResultProcess");
             }
         }
-        //private void OpenAPIKMAASOSResultInsertProcess(string resultPath)
-        //{
-        //    try
-        //    {
-        //        _logger.Debug($"파일 처리 시작: {resultPath}", "ResultProcess");
-        //        DateTime processStart = DateTime.Now;
-
-        //        List<rcvKMAASOSData> listKMAASOS = new List<rcvKMAASOSData>();
-        //        listKMAASOS = KMA_Controller.FiletoList_KMAASOS(resultPath);
-
-        //        if (listKMAASOS == null || listKMAASOS.Count == 0)
-        //        {
-        //            _logger.Warning($"파일에서 데이터를 찾을 수 없습니다: {resultPath}", "ResultProcess");
-        //            return;
-        //        }
-
-        //        _logger.Info($"파일에서 {listKMAASOS.Count}개 데이터 로드 완료", "ResultProcess");
-
-        //        string filePathWithoutExt = Path.GetFileNameWithoutExtension(resultPath);
-        //        //파일명에서 정보추출
-        //        string[] splitedstring = filePathWithoutExt.Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
-        //        int stdID = int.Parse(splitedstring[1].Trim());
-        //        DateTime sDate = BizCommon.StringtoDateTimeStart(splitedstring[2].Trim());
-        //        DateTime eDate = BizCommon.StringtoDateTimeEnd(splitedstring[2].Trim());
-
-        //        _logger.Debug($"파일 정보: 관측소ID={stdID}, 시작일={sDate:yyyy-MM-dd}, 종료일={eDate:yyyy-MM-dd}", "ResultProcess");
-
-        //        //입력 동일기간의 데이터를 Database에서 조회
-        //        DateTime dbQueryStart = DateTime.Now;
-        //        List<rcvKMAASOSData> listKMAASOS_Database = new List<rcvKMAASOSData>();
-        //        listKMAASOS_Database = NpgSQLService.GetDailyDatas_FromOpenAPI_KMAASOS(stdID, sDate, eDate);
-        //        TimeSpan dbQueryDuration = DateTime.Now - dbQueryStart;
-
-        //        _logger.LogPerformance("기존 데이터 조회", (long)dbQueryDuration.TotalMilliseconds, "Database");
-        //        _logger.Debug($"기존 데이터 조회 결과: {listKMAASOS_Database.Count}건", "ResultProcess");
-
-        //        //Database와 비교하여 Database에 없는것 입력
-        //        List<rcvKMAASOSData> addDatas = listKMAASOS.Where(current =>
-        //            !listKMAASOS_Database.Any(db => db.TM == current.TM && db.STN == current.STN)).ToList();
-
-        //        _logger.Info($"새로 추가할 데이터: {addDatas.Count}건", "ResultProcess");
-
-        //        if (addDatas.Count > 0)
-        //        {
-        //            //Bulk Insert 실행
-        //            _logger.Info($"데이터베이스에 {addDatas.Count}건 저장 중...", "Database");
-
-        //            DateTime dbInsertStart = DateTime.Now;
-        //            bool result = NpgSQLService.BulkInsert_KMAASOSDatas(addDatas);
-        //            TimeSpan dbInsertDuration = DateTime.Now - dbInsertStart;
-
-        //            _logger.LogPerformance("데이터베이스 삽입", (long)dbInsertDuration.TotalMilliseconds, "Database");
-
-        //            if (result)
-        //            {
-        //                _logger.Info($"데이터베이스 저장 성공: 관측소ID={stdID}, {addDatas.Count}건", "Database");
-        //            }
-        //            else
-        //            {
-        //                _logger.Error($"데이터베이스 저장 실패: 관측소ID={stdID}, {addDatas.Count}건", "Database");
-        //            }
-        //        }
-        //        else
-        //        {
-        //            _logger.Info("저장할 새로운 데이터가 없습니다.", "ResultProcess");
-        //        }
-
-        //        TimeSpan totalDuration = DateTime.Now - processStart;
-        //        _logger.LogPerformance("전체 처리 시간", (long)totalDuration.TotalMilliseconds, "ResultProcess");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogException(ex, "결과 처리 중 오류 발생", LogLevel.Error, "ResultProcess");
-        //    }
-        //}
-
-        private void OpenAPI_KMA_ASOS_PeriodCaller()
+               private void OpenAPI_KMA_ASOS_PeriodCaller()
         {
             _logger.Info("기간별 ASOS 데이터 수집 시작", "PeriodCaller");
 
             try
             {
-                //기간데이터
                 DateTime reqStartDate = new DateTime(
                     _global.startDate.Year,
                     _global.startDate.Month,
@@ -502,28 +414,17 @@ namespace Service.DataCollect.ASOS
 
                     //기관용 주소
                     string serviceURL = "https://apihub-pub.kma.go.kr/api/typ01/url/kma_sfcdd.php?";
-
-                    //시작시간
-                    string tm = dt.ToString("yyyyMMdd");
-
-                    //지점코드
-                    string stn = "0";
-
-                    //공백 : 0 콤마 : 1
-                    string disp = "1";
-
-                    //1 : Head에 도움말있음 , 0 : Head에 도움말 없음
-                    string help = "0";
-
-                    string authKey = "40cfe353913cd680317889498823f9214c0d7a09e09583a5b09291467c37af3414233051807b848caa2d0162742948c28969c222eb3dcdfc061abea91ac9d60a";
+                    string tm = dt.ToString("yyyyMMdd");//시작시간              
+                    string stn = "0";     //지점코드
+                    string disp = "1";      //공백 : 0 콤마 : 1
+                    string help = "0"; //1 : Head에 도움말있음 , 0 : Head에 도움말 없음
 
                     _logger.Info($"요청 중... 날짜: {tm}", "PeriodCaller");
 
                     // API 호출 시작 시간 기록
                     DateTime apiCallStart = DateTime.Now;
 
-                    Uri uri = new Uri(string.Format("{0}tm={1}&stn={2}&disp={3}&help={4}&authKey={5}",
-                        serviceURL, tm, stn, disp, help, authKey));
+                    Uri uri = new Uri($"{serviceURL}tm={tm}&stn={stn}&disp={disp}&help={help}&authKey={Config.authKeyASOS}");
 
                     string filePath = KMA_Controller.ExecuteDownloadResponse(uri, tm, stn);
 
@@ -541,10 +442,8 @@ namespace Service.DataCollect.ASOS
                     {
                         _logger.Warning($"{tm} 날짜의 데이터가 없습니다", "PeriodCaller");
                     }
+                     processedDays++;
 
-                    processedDays++;
-
-                    // 진행 상황 로깅
                     if (processedDays % 10 == 0 || processedDays == totalDays)
                     {
                         _logger.Info($"진행 상황: {processedDays}/{totalDays}일 처리 완료 ({(int)(processedDays * 100.0 / totalDays)}%)", "PeriodCaller");
@@ -554,7 +453,7 @@ namespace Service.DataCollect.ASOS
                 string completionMessage = $"기간별 데이터 수집 완료: 총 {totalDays}일 중 {dataFoundDays}일의 데이터를 찾았습니다.";
                 _logger.Info(completionMessage, "PeriodCaller");
 
-                // 작업 완료 메시지 표시
+
                 this.Invoke(new Action(() =>
                     MessageBox.Show(completionMessage, "기간별 수집 완료", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 ));
@@ -563,7 +462,6 @@ namespace Service.DataCollect.ASOS
             {
                 _logger.LogException(ex, "기간별 ASOS 데이터 수집 중 오류 발생", LogLevel.Error, "PeriodCaller");
 
-                // 오류 발생 시 메시지 박스로 알림
                 this.Invoke(new Action(() =>
                     MessageBox.Show($"오류 발생: {ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 ));
@@ -574,7 +472,6 @@ namespace Service.DataCollect.ASOS
         {
             _logger.Info("실시간 ASOS 데이터 수집 스레드 시작", "AutoCaller");
 
-            //ASOS일데이터에 맞게 호출시간 변경
             int nTimeGap = 1000 * Config.KMA_ASOS_Auto_Caller_Second;
             _logger.Debug($"실시간 데이터 수집 간격: {Config.KMA_ASOS_Auto_Caller_Second}초", "AutoCaller");
 
@@ -653,15 +550,11 @@ namespace Service.DataCollect.ASOS
                         string stn = "0";
                         string disp = "1";
                         string help = "0";
-                        string authKey = "40cfe353913cd680317889498823f9214c0d7a09e09583a5b09291467c37af3414233051807b848caa2d0162742948c28969c222eb3dcdfc061abea91ac9d60a";
-
-                        // API 호출 시작 시간 기록
+           
                         DateTime apiCallStart = DateTime.Now;
 
-                        //Uri uri = new Uri(string.Format("{0}tm={1}&tm2={2}&stn={3}&disp={4}&help={5}&authKey={6}",
-                        //    serviceURL, tm, tm2, stn, disp, help, authKey));
-                        Uri uri = new Uri(string.Format("{0}tm={1}&stn={2}&disp={3}&help={4}&authKey={5}",
-                    serviceURL, tm, stn, disp, help, authKey));
+                        //Uri uri = new Uri($"{serviceURL}tm={tm}&tm2={tm2}&stn={stn}&disp={disp}&help={help}&authKey={Config.authKeyASOS}");
+                        Uri uri = new Uri($"{serviceURL}tm={tm}&stn={stn}&disp={disp}&help={help}&authKey={Config.authKeyASOS}");
 
                         string filePath = KMA_Controller.ExecuteDownloadResponse(uri, tm, stn);
 
@@ -670,7 +563,6 @@ namespace Service.DataCollect.ASOS
                         _logger.LogPerformance($"API 호출 (날짜: {tm})", (long)apiCallDuration.TotalMilliseconds, "API");
 
                         #region [데이터 입력 Layer]
-                        //데이터 들어온거 확인
                         if (filePath != string.Empty)
                         {
                             _logger.Info($"{tm} 날짜의 데이터 수집 완료", "Service");
@@ -685,7 +577,6 @@ namespace Service.DataCollect.ASOS
 
                         processedDays++;
 
-                        // 진행 상황 로깅
                         if (processedDays % 5 == 0 || processedDays == totalDays)
                         {
                             _logger.Info($"진행 상황: {processedDays}/{totalDays}일 처리 완료 ({(int)(processedDays * 100.0 / totalDays)}%)", "Service");
@@ -702,7 +593,6 @@ namespace Service.DataCollect.ASOS
 
                 _logger.Info("OpenAPI KMA ASOS Service 완료됨", "Service");
 
-                // 작업 완료 메시지 표시
                 this.Invoke(new Action(() =>
                     MessageBox.Show("ASOS 데이터 수집이 완료되었습니다.", "작업 완료", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 ));
@@ -710,8 +600,6 @@ namespace Service.DataCollect.ASOS
             catch (Exception ex)
             {
                 _logger.LogException(ex, "OpenAPI KMA ASOS Service 오류 발생", LogLevel.Error, "Service");
-
-                // 오류 발생 시 메시지 박스로 알림
                 this.Invoke(new Action(() =>
                     MessageBox.Show($"오류 발생: {ex.Message}", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 ));
@@ -724,14 +612,13 @@ namespace Service.DataCollect.ASOS
             {
                 _logger.Debug($"결과 큐에 파일 추가: {filePath}", "Queue");
 
-                //결과 파일명 Queue에 넣기
+
                 lock (locker)
                 {
                     OpenAPI_KMA_ASOS_ResultQueue.Enqueue(filePath);
                     _logger.Debug($"현재 큐 크기: {OpenAPI_KMA_ASOS_ResultQueue.Count}", "Queue");
                 }
 
-                //결과 처리하도록 이벤트 발생
                 eventWaitHandle.Set();
                 _logger.Debug("결과 처리 이벤트 발생", "Queue");
             }
@@ -741,7 +628,6 @@ namespace Service.DataCollect.ASOS
             }
         }
 
-        // 리스트박스가 비어있는지 확인하는 메서드
         private void CheckListBoxEmpty()
         {
             if (listStatus.Items.Count == 0)
@@ -762,7 +648,7 @@ namespace Service.DataCollect.ASOS
         private void configToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _logger.Debug("설정 메뉴 클릭", "UI");
-            // 설정 관련 코드 구현
+
         }
         #endregion
 
@@ -778,7 +664,6 @@ namespace Service.DataCollect.ASOS
                     throw new ArgumentException("type is null");
                 }
 
-                // 팝업이 아니면 기존에 열려있는 폼 닫기
                 if (!isPopup)
                 {
                     foreach (var frm in this.MdiChildren)

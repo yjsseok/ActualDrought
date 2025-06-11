@@ -461,19 +461,18 @@ namespace Service.DataCollect.AG
             List<ReservoirLevelData> result = new List<ReservoirLevelData>();
             try
             {
-                string formattedStartDate = startDate.AddDays(-1).ToString("yyyyMMdd");
-                //string formattedStartDate = startDate.ToString("yyyyMMdd");
+                string formattedStartDate = startDate.AddDays(-1).ToString("yyyyMMdd"); //최소기간조회를 위한 -1일  
                 string formattedEndDate = endDate.ToString("yyyyMMdd");
 
                 // API URL 및 키 설정
                 string apiUrl = "http://apis.data.go.kr/B552149/reserviorWaterLevel/reservoirlevel/"; 
-                string ApiKey1 = Config.ApiKey1; // 1~3 중 한개 사용
-                //string apiKey = "FpAShNYZTSjw5iNsUwVK867BWOExI9aW6YstOhSMmgEEquLAatpmvK9ZvuqaKJsKY%2BVAuuSlChy%2BP2xhEYDq6g%3D%3D";
-                //string apiKey = "wN6RP5501Yw906BlOATGKtRPe2m9kwzOoqlUkaiG0fYEkWQthjBFEJ5kCPNeFm%2B2588z%2FJHrpDS%2FJKnvEeLhRQ%3D%3D"; //보조용(목)
-                //string apiKey = "TeSSIf1TYsuPoXt3gW4TDbqjfzc%2BkSCD3bFhjHgfPzK9JGkaRBHVSRSIM378w%2Fgi7d9tJ28xK4dx7lgdUqAgug%3D%3D"; //보조용(주)
+                string ApiKey = Config.ApiKey2; // 1~3 중 한개 사용
+                //string apiKey = "FpAShNYZ~~
+                //string apiKey2 = "wN6RP55~~//보조용(목)
+                //string apiKey3 = "TeSSIf1TY~~//보조용(주)
 
 
-                string requestUrl = $"{apiUrl}?serviceKey={Config.ApiKey1}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
+                string requestUrl = $"{apiUrl}?serviceKey={ApiKey}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
 
                 _logger.Debug($"API 요청 URL: {requestUrl}", "API");
 
