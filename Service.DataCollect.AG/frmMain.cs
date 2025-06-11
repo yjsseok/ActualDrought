@@ -80,44 +80,62 @@ namespace Service.DataCollect.AG
             _global.RealTimeUse = BizCommon.BoolConvert(Config.RealTimeUse);
             _global.PeriodUse = BizCommon.BoolConvert(Config.PeriodUse);
             _global.startDate = new DateTime(Config.StartDate, 1, 1);
-            //_global.endDate = new DateTime(Config.EndDate, 12, 31);
             _global.endDate = DateTime.Today;
 
             _logger.Debug($"기간 사용: {_global.PeriodUse}, 시작일: {_global.startDate:yyyy-MM-dd}, 종료일: {_global.endDate:yyyy-MM-dd}", "Config");
         }
 
-
+        /// <summary>
+        /// 데이터베이스 연결을 초기화하고 테스트합니다.
+        /// </summary>
+        /// <returns></returns>
         private bool InitializeDatabase()
         {
-            // 데이터베이스 연결 초기화 로직
-            _logger.Info("데이터베이스 연결 시도 중...", "Database");
+            _logger.Info("데이터베이스 연결 테스트 중...", "Database");
 
-            string dbIP = Config.dbIP;
-            string dbName = Config.dbName;
-            string dbPort = Config.dbPort;
-            string dbId = Config.dbId;
-
-            _logger.Debug($"DB 연결 정보: IP={dbIP}, DB={dbName}, Port={dbPort}, ID={dbId}", "Database");
-
-            try
+            // NpgSQLService의 공통 연결 테스트 메서드 호출
+            if (NpgSQLService.TestConnection())
             {
-                string strConn = $"Server={dbIP};Port={dbPort};User Id={dbId};Password={Config.dbPassword};Database={dbName};";
-
-                using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
-                {
-                    conn.Open();
-                    _logger.Info("데이터베이스 연결 성공", "Database");
-                    conn.Close();
-                    return true;
-                }
+                _logger.Info("데이터베이스 연결 성공.", "Database");
+                return true;
             }
-            catch (Exception ex)
+            else
             {
-                _logger.Error($"데이터베이스 연결 실패: {ex.Message}", "Database");
-                _logger.Debug($"연결 오류 상세: {ex.StackTrace}", "Database");
+                _logger.Error("데이터베이스 연결 실패.", "Database");
                 return false;
             }
         }
+        //private bool InitializeDatabase()
+        //{
+        //    // 데이터베이스 연결 초기화 로직
+        //    _logger.Info("데이터베이스 연결 시도 중...", "Database");
+
+        //    string dbIP = Config.dbIP;
+        //    string dbName = Config.dbName;
+        //    string dbPort = Config.dbPort;
+        //    string dbId = Config.dbId;
+
+        //    _logger.Debug($"DB 연결 정보: IP={dbIP}, DB={dbName}, Port={dbPort}, ID={dbId}", "Database");
+
+        //    try
+        //    {
+        //        string strConn = $"Server={dbIP};Port={dbPort};User Id={dbId};Password={Config.dbPassword};Database={dbName};";
+
+        //        using (NpgsqlConnection conn = new NpgsqlConnection(strConn))
+        //        {
+        //            conn.Open();
+        //            _logger.Info("데이터베이스 연결 성공", "Database");
+        //            conn.Close();
+        //            return true;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.Error($"데이터베이스 연결 실패: {ex.Message}", "Database");
+        //        _logger.Debug($"연결 오류 상세: {ex.StackTrace}", "Database");
+        //        return false;
+        //    }
+        //}
 
         private void btnStart_Click(object sender, EventArgs e)
         {

@@ -18,17 +18,39 @@ namespace OpenAPI.DataServices
     {
         private static string GetConnectionString()
         {
-            string dbIP = Config.dbIP;
-            string dbName = Config.dbName;
-            string dbPort = Config.dbPort;
-            string dbId = Config.dbId;
-            string dbPassword = Config.dbPassword;
-
-            string strConn = String.Format("Server={0};Port={1};User Id={2};Password={3};Database={4};",
-                        dbIP, dbPort, dbId, dbPassword, dbName);
-
+            //string dbIP = Config.dbIP;
+            //string dbName = Config.dbName;
+            //string dbPort = Config.dbPort;
+            //string dbId = Config.dbId;
+            //string dbPassword = Config.dbPassword;
+            //string strConn = $"Server={dbIP};Port={dbPort};User Id={dbId};Password={dbPassword};Database={dbName};";
+            string strConn = $"Server={Config.dbIP};Port={Config.dbPort};User Id={Config.dbId};Password={Config.dbPassword};Database={Config.dbName};";
             return strConn;
         }
+
+        /// <summary>
+        /// 데이터베이스 연결을 테스트하는 공용 메서드.
+        /// </summary>
+        /// <returns>연결에 성공하면 true, 실패하면 false를 반환합니다.</returns>
+        public static bool TestConnection()
+        {
+            try
+            {
+                using (var conn = new NpgsqlConnection(GetConnectionString()))
+                {
+                    conn.Open();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog("Database connection test failed.");
+                GMLogHelper.WriteLog(string.Format("Message : {0}", ex.Message));
+                return false;
+            }
+        }
+
+
 
         #region [KMA]
         public static List<string> GetSggCD_FromOpenAPI_KMAASOS()
@@ -346,8 +368,6 @@ namespace OpenAPI.DataServices
                 }
             }
         }
-
-
         public static List<DamHRData> GetDailyDatasFromOpenAPIWAMISDamHrData(string damcd, string sDate, string eDate)
         {
             string strConn = GetConnectionString();
@@ -977,26 +997,17 @@ namespace OpenAPI.DataServices
             return result;
         }
 
-        
-
-
-
-
-
-
-
-
-
-
 
         #endregion
         ///////////////////////////////////////////////////////////////////////////////////////////////////
+        
+
         ///댐정보
         ///   <summary>
         /// 댐정보\
         /// </summary>
         /// <returns></returns>
-        public static DateTime GetLastObsDate_DrghtDamOper()
+    public static DateTime GetLastObsDate_DrghtDamOper()
     {
         using (var conn = new NpgsqlConnection(GetConnectionString()))
         {
@@ -1015,8 +1026,6 @@ namespace OpenAPI.DataServices
         // 데이터 없으면 30일 전 날짜 반환
         return DateTime.Today.AddDays(-30);
     }
-
-    // 일괄 Insert
     public static bool BulkInsert_DrghtDamOperDatas(List<DrghtDamOperData> dataList)
     {
         if (dataList == null || dataList.Count == 0) return true;
