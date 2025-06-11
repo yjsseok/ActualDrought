@@ -4,15 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{764D5211-0941-4913-8168-B8615CF4DCB2}</ProjectGuid>
+    <ProjectGuid>{31D7D415-79EE-4AAE-A377-3A12F54DAF71}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Service.DataCollect.AG</RootNamespace>
-    <AssemblyName>Service.DataCollect.AG</AssemblyName>
+    <RootNamespace>Service.DataCollect.drghtdamoper</RootNamespace>
+    <AssemblyName>Service.DataCollect.drghtdamoper</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -149,9 +148,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\OpenAPI.Controls\OpenAPI.Controls.csproj">
       <Project>{BA1AE05C-D2A7-4FA4-870B-7CBDEA8E5BA6}</Project>
       <Name>OpenAPI.Controls</Name>
@@ -169,15 +165,17 @@
       <Name>JSFW.logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\UFRI.FramWork\UFRI.FrameWork.csproj">
-      <Project>{3105cc22-f652-4581-ac12-ac01507e7d81}</Project>
+      <Project>{3105CC22-F652-4581-AC12-AC01507E7D81}</Project>
       <Name>UFRI.FrameWork</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
     <None Include="l4n.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

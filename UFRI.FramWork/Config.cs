@@ -160,5 +160,10 @@ namespace UFRI.FrameWork
         public static string ApiKey3 => ConfigurationManager.AppSettings["ApiKey3"];
         public static string authKeyASOS => ConfigurationManager.AppSettings["authKeyASOS"];
 
+        public static string rScriptPath => ConfigurationManager.AppSettings["rScriptPath"];
+        public static string rScriptPath2 => ConfigurationManager.AppSettings["rScriptPath2"];
+        public static string rScriptPath3 => ConfigurationManager.AppSettings["rScriptPath3"];
+        public static string rExePath => ConfigurationManager.AppSettings["rExePath"];
+        
     }
 }

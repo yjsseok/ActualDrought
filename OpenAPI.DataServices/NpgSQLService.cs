@@ -991,7 +991,61 @@ namespace OpenAPI.DataServices
 
         #endregion
         ///////////////////////////////////////////////////////////////////////////////////////////////////
+        ///댐정보
+        ///   <summary>
+        /// 댐정보\
+        /// </summary>
+        /// <returns></returns>
+        public static DateTime GetLastObsDate_DrghtDamOper()
+    {
+        using (var conn = new NpgsqlConnection(GetConnectionString()))
+        {
+            conn.Open();
+            string sql = "SELECT MAX(obsymd) FROM api.tb_drghtdamoper";
+            using (var cmd = new NpgsqlCommand(sql, conn))
+            {
+                object result = cmd.ExecuteScalar();
+                if (result != DBNull.Value && result != null)
+                {
+                    if (DateTime.TryParseExact(result.ToString(), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date))
+                        return date;
+                }
+            }
+        }
+        // 데이터 없으면 30일 전 날짜 반환
+        return DateTime.Today.AddDays(-30);
+    }
 
+    // 일괄 Insert
+    public static bool BulkInsert_DrghtDamOperDatas(List<DrghtDamOperData> dataList)
+    {
+        if (dataList == null || dataList.Count == 0) return true;
+        string strConn = GetConnectionString();
+        try
+        {
+            var query = new System.Text.StringBuilder();
+            query.Append("INSERT INTO api.tb_drghtdamoper (damcd, damnm, iqty, lwl, obsymd, rsqty, rsrt) VALUES ");
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                if (i > 0) query.Append(", ");
+                var d = dataList[i];
+                query.Append($"('{d.damcd}', '{d.damnm}', {d.iqty}, {d.lwl}, '{d.obsymd}', {d.rsqty}, {d.rsrt})");
+            }
+            using (var conn = new NpgsqlConnection(strConn))
+            {
+                conn.Open();
+                var command = new NpgsqlCommand(query.ToString(), conn);
+                command.ExecuteNonQuery();
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            GMLogHelper.WriteLog(ex.StackTrace);
+            GMLogHelper.WriteLog(ex.Message);
+            return false;
+        }
+    }
 
     }
 }

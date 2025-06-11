@@ -96,6 +96,9 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="U8XmlParser, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\U8XmlParser.1.6.1\lib\net48\U8XmlParser.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="frmConfig.cs">
@@ -154,9 +157,9 @@
       <Project>{212054C1-1053-43EF-87F8-4C7D68457011}</Project>
       <Name>OpenAPI.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Service.JSlogger\Service.JSlogger.csproj">
+    <ProjectReference Include="..\Service.JSlogger\JSFW.logger.csproj">
       <Project>{34e5ae0f-9bf4-469c-b49a-e50a5f33d93f}</Project>
-      <Name>Service.JSlogger</Name>
+      <Name>JSFW.logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\UFRI.FramWork\UFRI.FrameWork.csproj">
       <Project>{3105CC22-F652-4581-AC12-AC01507E7D81}</Project>
