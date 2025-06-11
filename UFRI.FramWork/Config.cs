@@ -135,7 +135,8 @@ namespace UFRI.FrameWork
         }
 
         public static string ApiKey1 => ConfigurationManager.AppSettings["ApiKey1"];
-
+        public static string ApiKey2 => ConfigurationManager.AppSettings["ApiKey2"];
+        public static string ApiKey3 => ConfigurationManager.AppSettings["ApiKey3"];
         public static string RealTimeUse
         {
             get { return GMConvert.ToString(ConfigurationManager.AppSettings["RealTimeUse"]); }
