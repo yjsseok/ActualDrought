@@ -152,6 +152,10 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OpenAPI DataCollecter\OpenAPI DataCollecter.csproj">
+      <Project>{3e34141c-5154-4e9a-b728-aa50ea318c9a}</Project>
+      <Name>OpenAPI DataCollecter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OpenAPI.Controls\OpenAPI.Controls.csproj">
       <Project>{BA1AE05C-D2A7-4FA4-870B-7CBDEA8E5BA6}</Project>
       <Name>OpenAPI.Controls</Name>

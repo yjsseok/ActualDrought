@@ -93,7 +93,6 @@ namespace Service.DataCollect.AG
         {
             _logger.Info("데이터베이스 연결 테스트 중...", "Database");
 
-            // NpgSQLService의 공통 연결 테스트 메서드 호출
             if (NpgSQLService.TestConnection())
             {
                 _logger.Info("데이터베이스 연결 성공.", "Database");
@@ -236,6 +235,7 @@ namespace Service.DataCollect.AG
 
         private void OpenAPI_AG_tb_reserviorlevel_Service()
         {
+
             try
             {
                 _logger.Info("농업용 저수지 실시간 데이터 수집 모듈 시작", "Service");
@@ -474,86 +474,86 @@ namespace Service.DataCollect.AG
             }
         }
 
-        private async Task<List<ReservoirLevelData>> GetReservoirDataAsync(string damCode, DateTime startDate, DateTime endDate)
-        {
-            List<ReservoirLevelData> result = new List<ReservoirLevelData>();
-            try
-            {
-                string formattedStartDate = startDate.AddDays(-1).ToString("yyyyMMdd"); //최소기간조회를 위한 -1일  
-                string formattedEndDate = endDate.ToString("yyyyMMdd");
+        //private async Task<List<ReservoirLevelData>> GetReservoirDataAsync(string damCode, DateTime startDate, DateTime endDate)
+        //{
+        //    List<ReservoirLevelData> result = new List<ReservoirLevelData>();
+        //    try
+        //    {
+        //        string formattedStartDate = startDate.AddDays(-1).ToString("yyyyMMdd"); //최소기간조회를 위한 -1일  
+        //        string formattedEndDate = endDate.ToString("yyyyMMdd");
 
-                // API URL 및 키 설정
-                string apiUrl = "http://apis.data.go.kr/B552149/reserviorWaterLevel/reservoirlevel/"; 
-                string ApiKey = Config.ApiKey2; // 1~3 중 한개 사용
-                //string apiKey = "FpAShNYZ~~
-                //string apiKey2 = "wN6RP55~~//보조용(목)
-                //string apiKey3 = "TeSSIf1TY~~//보조용(주)
+        //        // API URL 및 키 설정
+        //        string apiUrl = "http://apis.data.go.kr/B552149/reserviorWaterLevel/reservoirlevel/"; 
+        //        //string ApiKey = Config.AG_ApiKey2; // DATA_ApiKey1~3 중 한개 사용
+        //        //string apiKey = "FpAShNYZ~~
+        //        //string apiKey2 = "wN6RP55~~//보조용(목)
+        //        //string apiKey3 = "TeSSIf1TY~~//보조용(주)
 
 
-                string requestUrl = $"{apiUrl}?serviceKey={ApiKey}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
+        //        string requestUrl = $"{apiUrl}?serviceKey={Config.DATA_ApiKey2}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
 
-                _logger.Debug($"API 요청 URL: {requestUrl}", "API");
+        //        _logger.Debug($"API 요청 URL: {requestUrl}", "API");
 
-                // HttpClient 생성
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    // 응답을 바이트 배열로 받아서 처리
-                    HttpResponseMessage response = await httpClient.GetAsync(requestUrl);
+        //        // HttpClient 생성
+        //        using (HttpClient httpClient = new HttpClient())
+        //        {
+        //            // 응답을 바이트 배열로 받아서 처리
+        //            HttpResponseMessage response = await httpClient.GetAsync(requestUrl);
 
-                    _logger.Debug($"API 응답 상태 코드: {(int)response.StatusCode} ({response.StatusCode})", "API");
+        //            _logger.Debug($"API 응답 상태 코드: {(int)response.StatusCode} ({response.StatusCode})", "API");
 
-                    response.EnsureSuccessStatusCode();
-                    byte[] byteArray = await response.Content.ReadAsByteArrayAsync();
-                    string xmlResponse = Encoding.UTF8.GetString(byteArray);
+        //            response.EnsureSuccessStatusCode();
+        //            byte[] byteArray = await response.Content.ReadAsByteArrayAsync();
+        //            string xmlResponse = Encoding.UTF8.GetString(byteArray);
 
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(xmlResponse);
-                    XmlNode authMsgNode = xmlDoc.SelectSingleNode("/response/header/returnAuthMsg");
-                    XmlNode reasonCodeNode = xmlDoc.SelectSingleNode("/response/header/returnReasonCode");
-                    if (authMsgNode != null || reasonCodeNode != null)
-                    {
-                        string msg = $"API 응답 에러: returnAuthMsg={authMsgNode?.InnerText}, returnReasonCode={reasonCodeNode?.InnerText}, damCode={damCode}, 기간={formattedStartDate}~{formattedEndDate}";
-                        _logger.Warning(msg, "API");
-                    }
-                  
-                    XmlNodeList itemNodes = xmlDoc.SelectNodes("//item");
+        //            XmlDocument xmlDoc = new XmlDocument();
+        //            xmlDoc.LoadXml(xmlResponse);
+        //            XmlNode authMsgNode = xmlDoc.SelectSingleNode("/response/header/returnAuthMsg");
+        //            XmlNode reasonCodeNode = xmlDoc.SelectSingleNode("/response/header/returnReasonCode");
+        //            if (reasonCodeNode != null && reasonCodeNode.InnerText != "00")
+        //            {
+        //                string msg = $"API 응답 확인 필요: returnAuthMsg={authMsgNode?.InnerText}, returnReasonCode={reasonCodeNode.InnerText}, damCode={damCode}, 기간={formattedStartDate}~{formattedEndDate}";
+        //                _logger.Warning(msg, "API");
+        //            }
 
-                    if (itemNodes != null && itemNodes.Count > 0)
-                    {
-                        _logger.Debug($"API 응답에서 {itemNodes.Count}개 항목 발견", "API");
+        //            XmlNodeList itemNodes = xmlDoc.SelectNodes("//item");
 
-                        foreach (XmlNode item in itemNodes)
-                        {
-                            var data = new ReservoirLevelData
-                            {
-                                check_date = GetNodeValue(item, "check_date"),
-                                county = GetNodeValue(item, "county"),
-                                fac_code = GetNodeValue(item, "fac_code"),
-                                fac_name = GetNodeValue(item, "fac_name"),
-                                rate = GetNodeValue(item, "rate"),
-                            };
-                            result.Add(data);
-                        }
-                    }
-                    else
-                    {
-                        _logger.Warning($"API 응답에 데이터 항목이 없습니다. 저수지 코드: {damCode}", "API");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogException(ex, $"API 호출 오류 (저수지 코드: {damCode})", LogLevel.Error, "API");
-            }
+        //            if (itemNodes != null && itemNodes.Count > 0)
+        //            {
+        //                _logger.Debug($"API 응답에서 {itemNodes.Count}개 항목 발견", "API");
 
-            return result;
-        }
+        //                foreach (XmlNode item in itemNodes)
+        //                {
+        //                    var data = new ReservoirLevelData
+        //                    {
+        //                        check_date = GetNodeValue(item, "check_date"),
+        //                        county = GetNodeValue(item, "county"),
+        //                        fac_code = GetNodeValue(item, "fac_code"),
+        //                        fac_name = GetNodeValue(item, "fac_name"),
+        //                        rate = GetNodeValue(item, "rate"),
+        //                    };
+        //                    result.Add(data);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                _logger.Warning($"API 응답에 데이터 항목이 없습니다. 저수지 코드: {damCode}", "API");
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogException(ex, $"API 호출 오류 (저수지 코드: {damCode})", LogLevel.Error, "API");
+        //    }
 
-        private string GetNodeValue(XmlNode parentNode, string nodeName)
-        {
-            XmlNode node = parentNode.SelectSingleNode(nodeName);
-            return node != null ? node.InnerText : string.Empty;
-        }
+        //    return result;
+        //}
+
+        //private string GetNodeValue(XmlNode parentNode, string nodeName)
+        //{
+        //    XmlNode node = parentNode.SelectSingleNode(nodeName);
+        //    return node != null ? node.InnerText : string.Empty;
+        //}
 
         private void OpenAPI_AG_tb_reserviorlevel_ResultCaller()
         {
@@ -587,71 +587,97 @@ namespace Service.DataCollect.AG
 
             _logger.Info("농업용 저수지 결과 처리 모듈 종료", "ResultCaller");
         }
-
         private bool SaveReservoirDataToDatabase(List<ReservoirLevelData> dataList)
         {
-            if (dataList == null || dataList.Count == 0)
+            if (dataList == null || !dataList.Any())
                 return false;
 
-            try
+            string facName = dataList.First().fac_name;
+            _logger.Info($"[{facName}] 저수지 데이터 저장 시도: {dataList.Count}건", "Database");
+
+            // NpgSQLService의 통합된 메서드를 호출하여 데이터 저장
+            int insertedCount = NpgSQLService.UpsertReservoirLevelData(dataList);
+
+            if (insertedCount > 0)
             {
-                // 기존 데이터 확인 (중복 방지)
-                string facCode = dataList.First().fac_code;
-                string startDate = dataList.Min(d => d.check_date);
-                string endDate = dataList.Max(d => d.check_date);
-                string facName = dataList.First().fac_name;
-
-                _logger.Info($"[{facName}] 저수지 데이터 저장 준비: {dataList.Count}건 ({startDate} ~ {endDate})", "Database");
-
-                // 기존 데이터 조회
-                DateTime dbQueryStart = DateTime.Now;
-                List<ReservoirLevelData> existingData = NpgSQLService.GetReservoirLevelData(facCode, startDate, endDate);
-                TimeSpan dbQueryDuration = DateTime.Now - dbQueryStart;
-
-                _logger.LogPerformance($"기존 데이터 조회", (long)dbQueryDuration.TotalMilliseconds, "Database");
-                _logger.Debug($"기존 데이터 조회 결과: {existingData.Count}건", "Database");
-
-                // 중복되지 않은 데이터만 필터링
-                List<ReservoirLevelData> newData = dataList.Where(current =>
-                    !existingData.Any(db =>
-                        db.check_date == current.check_date &&
-                        db.fac_code == current.fac_code)
-                ).ToList();
-
-                if (newData.Count > 0)
-                {
-                    // 벌크 삽입 실행
-                    _logger.Info($"데이터베이스에 {newData.Count}건 저장 중...", "Database");
-
-                    DateTime dbInsertStart = DateTime.Now;
-                    bool result = NpgSQLService.BulkInsert_ReservoirLevelData(newData);
-                    TimeSpan dbInsertDuration = DateTime.Now - dbInsertStart;
-
-                    _logger.LogPerformance($"데이터베이스 삽입", (long)dbInsertDuration.TotalMilliseconds, "Database");
-
-                    if (result)
-                    {
-                        _logger.Info($"데이터베이스에 {newData.Count}건 저장 완료", "Database");
-                        return true;
-                    }
-                    else
-                    {
-                        _logger.Error("데이터베이스 저장 실패", "Database");
-                        return false;
-                    }
-                }
-                else
-                {
-                    _logger.Info("저장할 새로운 데이터가 없습니다.", "Database");
-                    return true;
-                }
+                _logger.Info($"데이터베이스에 새로운 데이터 {insertedCount}건 저장 완료.", "Database");
+                return true;
             }
-            catch (Exception ex)
+            else if (insertedCount == 0)
             {
-                _logger.LogException(ex, "DB 저장 오류", LogLevel.Error, "Database");
+                _logger.Info("저장할 새로운 데이터가 없습니다.", "Database");
+                return true;
+            }
+            else
+            {
+                _logger.Error("데이터베이스 저장 실패.", "Database");
                 return false;
             }
         }
+        //private bool SaveReservoirDataToDatabase(List<ReservoirLevelData> dataList)
+        //{
+        //    if (dataList == null || dataList.Count == 0)
+        //        return false;
+
+        //    try
+        //    {
+        //        // 기존 데이터 확인 (중복 방지)
+        //        string facCode = dataList.First().fac_code;
+        //        string startDate = dataList.Min(d => d.check_date);
+        //        string endDate = dataList.Max(d => d.check_date);
+        //        string facName = dataList.First().fac_name;
+
+        //        _logger.Info($"[{facName}] 저수지 데이터 저장 준비: {dataList.Count}건 ({startDate} ~ {endDate})", "Database");
+
+        //        // 기존 데이터 조회
+        //        DateTime dbQueryStart = DateTime.Now;
+        //        List<ReservoirLevelData> existingData = NpgSQLService.GetReservoirLevelData(facCode, startDate, endDate);
+        //        TimeSpan dbQueryDuration = DateTime.Now - dbQueryStart;
+
+        //        _logger.LogPerformance($"기존 데이터 조회", (long)dbQueryDuration.TotalMilliseconds, "Database");
+        //        _logger.Debug($"기존 데이터 조회 결과: {existingData.Count}건", "Database");
+
+        //        // 중복되지 않은 데이터만 필터링
+        //        List<ReservoirLevelData> newData = dataList.Where(current =>
+        //            !existingData.Any(db =>
+        //                db.check_date == current.check_date &&
+        //                db.fac_code == current.fac_code)
+        //        ).ToList();
+
+        //        if (newData.Count > 0)
+        //        {
+        //            // 벌크 삽입 실행
+        //            _logger.Info($"데이터베이스에 {newData.Count}건 저장 중...", "Database");
+
+        //            DateTime dbInsertStart = DateTime.Now;
+        //            bool result = NpgSQLService.BulkInsert_ReservoirLevelData(newData);
+        //            TimeSpan dbInsertDuration = DateTime.Now - dbInsertStart;
+
+        //            _logger.LogPerformance($"데이터베이스 삽입", (long)dbInsertDuration.TotalMilliseconds, "Database");
+
+        //            if (result)
+        //            {
+        //                _logger.Info($"데이터베이스에 {newData.Count}건 저장 완료", "Database");
+        //                return true;
+        //            }
+        //            else
+        //            {
+        //                _logger.Error("데이터베이스 저장 실패", "Database");
+        //                return false;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            _logger.Info("저장할 새로운 데이터가 없습니다.", "Database");
+        //            return true;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogException(ex, "DB 저장 오류", LogLevel.Error, "Database");
+        //        return false;
+        //    }
+        //}
 
         private void ServiceStop()
         {

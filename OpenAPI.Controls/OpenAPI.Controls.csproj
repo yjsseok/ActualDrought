@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="BizCommon.cs" />
     <Compile Include="BizFileIO.cs" />
+    <Compile Include="DATA_Controller.cs" />
     <Compile Include="DrghtDamOperController.cs" />
     <Compile Include="KMA_Controller.cs" />
     <Compile Include="ParamObj.cs" />

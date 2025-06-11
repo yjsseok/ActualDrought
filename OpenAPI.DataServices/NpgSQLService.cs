@@ -1000,14 +1000,57 @@ namespace OpenAPI.DataServices
 
         #endregion
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
+        /// <summary>
+        /// 수집된 저수지 수위 데이터를 DB에 저장합니다. (중복 데이터는 제외하고 신규 데이터만 추가)
+        /// </summary>
+        /// <param name="dataList">API로부터 수집된 전체 데이터 리스트</param>
+        /// <returns>성공적으로 DB에 추가된 데이터의 수. 오류 발생 시 -1을 반환합니다.</returns>
+        public static int UpsertReservoirLevelData(List<ReservoirLevelData> dataList)
+        {
+            if (dataList == null || !dataList.Any())
+                return 0;
+
+            try
+            {
+                string facCode = dataList.First().fac_code;
+                string startDate = dataList.Min(d => d.check_date);
+                string endDate = dataList.Max(d => d.check_date);
+
+                // 1. DB에서 해당 기간의 기존 데이터 조회
+                List<ReservoirLevelData> existingData = GetReservoirLevelData(facCode, startDate, endDate);
+
+                // 2. 신규 데이터만 필터링
+                List<ReservoirLevelData> newData = dataList.Where(current =>
+                    !existingData.Any(db =>
+                        db.check_date == current.check_date &&
+                        db.fac_code == current.fac_code)
+                ).ToList();
+
+                if (!newData.Any())
+                {
+                    // 새로 추가할 데이터가 없는 경우
+                    return 0;
+                }
+
+                // 3. 신규 데이터만 Bulk Insert
+                bool success = BulkInsert_ReservoirLevelData(newData);
+
+                return success ? newData.Count : -1;
+            }
+            catch (Exception ex)
+            {
+                GMLogHelper.WriteLog($"UpsertReservoirLevelData 오류: {ex.Message}");
+                return -1;
+            }
+        }
 
         ///댐정보
         ///   <summary>
         /// 댐정보\
         /// </summary>
         /// <returns></returns>
-    public static DateTime GetLastObsDate_DrghtDamOper()
+        public static DateTime GetLastObsDate_DrghtDamOper()
     {
         using (var conn = new NpgsqlConnection(GetConnectionString()))
         {

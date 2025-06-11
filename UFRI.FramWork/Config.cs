@@ -155,9 +155,9 @@ namespace UFRI.FrameWork
             get { return GMConvert.ToInt32(ConfigurationManager.AppSettings["EndDate"]); }
         }
         #endregion
-        public static string ApiKey1 => ConfigurationManager.AppSettings["ApiKey1"];
-        public static string ApiKey2 => ConfigurationManager.AppSettings["ApiKey2"];
-        public static string ApiKey3 => ConfigurationManager.AppSettings["ApiKey3"];
+        public static string DATA_ApiKey1 => ConfigurationManager.AppSettings["DATA_ApiKey1"];
+        public static string DATA_ApiKey2 => ConfigurationManager.AppSettings["DATA_ApiKey2"];
+        public static string DATA_ApiKey3 => ConfigurationManager.AppSettings["DATA_ApiKey3"];
         public static string authKeyASOS => ConfigurationManager.AppSettings["authKeyASOS"];
 
         public static string rScriptPath => ConfigurationManager.AppSettings["rScriptPath"];
