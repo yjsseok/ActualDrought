@@ -164,6 +164,7 @@ namespace Service.DataCollect.Dam
             if (!isServiceRunning) // 서비스가 실행 중이 아닐 경우
             {
                 _logger.Info("서비스 시작 요청", "Service");
+
                 bool success = ServiceStart();
                 if (success)
                 {
@@ -203,7 +204,8 @@ namespace Service.DataCollect.Dam
             try
             {
                 _logger.Info("서비스 시작 중...", "Service");
-               
+                _shouldStop = false;
+
                 // WAMIS 실시간 데이터 수집 스레드
                 if (_global.RealTimeUse == true && _global.PeriodUse != true)
                 {

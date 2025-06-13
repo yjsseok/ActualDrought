@@ -136,6 +136,7 @@ namespace Service.DataCollect.AG
         //    }
         //}
 
+        
         private void btnStart_Click(object sender, EventArgs e)
         {
             if (!isServiceRunning)

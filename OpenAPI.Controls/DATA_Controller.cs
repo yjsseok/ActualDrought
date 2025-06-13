@@ -18,7 +18,7 @@ namespace OpenAPI.Controls
         public async Task<List<ReservoirLevelData>> GetReservoirDataAsync(string damCode, DateTime startDate, DateTime endDate)
         {
             var result = new List<ReservoirLevelData>();
-            string formattedStartDate = startDate.ToString("yyyyMMdd");
+            string formattedStartDate = startDate.AddDays(-1).ToString("yyyyMMdd"); //최소기간조회를 위한 -1일  
             string formattedEndDate = endDate.ToString("yyyyMMdd");
             string requestUrl = $"{_apiUrl}?serviceKey={Config.DATA_ApiKey2}&pageNo=1&numOfRows=1000&fac_code={damCode}&date_s={formattedStartDate}&date_e={formattedEndDate}";
 

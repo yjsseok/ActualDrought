@@ -180,6 +180,10 @@ namespace Service.DataCollect.ASOS
         {
             try
             {
+                _logger.Info("서비스 시작 중...", "Service");
+                // *** 정지 플래그를 초기화합니다. ***
+                _shouldStop = false;
+
                 #region [기상청 자료수집 구동]
                 if (_global.RealTimeUse == true)
                 {
